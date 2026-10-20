@@ -17,7 +17,7 @@ if os.path.exists(".env"):
     for line in open(".env", encoding="utf-8-sig").read().split("\n"):
         if "=" in line and not line.startswith("#"):
             key_name, key_value = line.split("=", 1)
-            os.environ[key_name.strip()] = key_value.strip().strip('"')
+            os.environ[key_name.strip()] = key_value.strip().strip('"').strip("'")
 
 # show the start and length of the key (not the whole key) so we can see if it was read right
 the_key = os.environ.get("GROQ_API_KEY", "")
