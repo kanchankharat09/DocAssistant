@@ -1,0 +1,12 @@
+Patient: Ramesh Kulkarni, 58M
+Date: 15 Oct 2026
+Type: Follow-up (known hypertension)
+
+Doctor: Hello Ramesh. How is your BP now?
+Patient: Doctor, I get headache in the morning sometimes. I am taking the BP tablet every day.
+Doctor: Let me check. BP is 150 over 96, which is high. Any chest pain or breathlessness?
+Patient: No chest pain, no breathlessness.
+Doctor: Any allergies to medicines?
+Patient: No.
+Doctor: Your BP is not well controlled. I am prescribing Amlodipine 50mg once a day in the morning for 30 days. Reduce salt in food and walk 30 minutes daily. Check BP again after 2 weeks.
+Patient: Ok doctor.

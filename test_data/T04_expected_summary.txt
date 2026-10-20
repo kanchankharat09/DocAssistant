@@ -1,0 +1,13 @@
+Patient: Ramesh Kulkarni, 58M
+Date: 15 Oct 2026
+Visit type: Follow-up (known hypertension)
+
+Chief complaint: Morning headache, BP not controlled (150/96)
+Associated symptoms: No chest pain, no breathlessness
+Past history: Hypertension
+Allergies: None
+
+Medicines prescribed:
+- Amlodipine 50mg — once a day in the morning — 30 days [FLAG: dose looks wrong, not in the test dose list, verify with doctor]
+
+Doctor instructions: Reduce salt. Walk 30 minutes daily. Recheck BP after 2 weeks.
