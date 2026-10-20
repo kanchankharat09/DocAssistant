@@ -14,10 +14,14 @@ from groq import Groq
 # read the key from the .env file if it is there
 # (the .env file has one line like:  GROQ_API_KEY=your_key )
 if os.path.exists(".env"):
-    for line in open(".env").read().split("\n"):
+    for line in open(".env", encoding="utf-8-sig").read().split("\n"):
         if "=" in line and not line.startswith("#"):
             key_name, key_value = line.split("=", 1)
             os.environ[key_name.strip()] = key_value.strip().strip('"')
+
+# show the start and length of the key (not the whole key) so we can see if it was read right
+the_key = os.environ.get("GROQ_API_KEY", "")
+print("key starts with:", the_key[:4], " length:", len(the_key))
 
 # the model name can be changed from outside, check the Groq website for names
 model_name = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
