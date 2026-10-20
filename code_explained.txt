@@ -1,0 +1,236 @@
+CODE EXPLAINED (simple language)
+================================
+
+This file explains every code file in this project in simple words:
+what it does, how it is written, and why we do it like that.
+Read it with the code open next to it.
+
+Files in this project
+---------------------
+1. test_data/check_counts.py     (S1)  counts the test files
+2. db/seed.py                    (S2)  makes the database with fake patients
+3. summary_service/summarize.py  (S3)  asks Groq AI to make summaries
+
+All three are written the simple way: straight from top to bottom, no
+functions, no classes. You read it like a list of steps.
+
+
+Some basic things used in all files
+-----------------------------------
+- Variable: a name that keeps a value. Example: folder = "test_data"
+- List: many values in one place. Example: ids = ["T01", "T02"]
+- for loop: do the same thing again for each item in a list.
+- if: do something only when a condition is true.
+- open(file).read(): read the whole text file into one big string.
+- Comment: a line starting with #. Python ignores it. It is only for us.
+- Run from the main folder: all file paths like "test_data/..." start from
+  the main DocAssistant folder, so always run the commands from there.
+
+
+1. test_data/check_counts.py   (S1)
+===================================
+What it does
+  Counts how many transcripts and expected summaries are ready, and
+  prints which ones are still missing. The plan (S1) asks for exactly this.
+
+How to run
+  python3 test_data/check_counts.py
+
+Step by step
+  Step 1. Read MANIFEST.csv.
+          This file is a small table. Each line is one case:
+              id,language,planted_error,status
+              T04,en,dose,done
+          csv.DictReader gives each line as a dictionary, so we can write
+          row["language"] instead of remembering column numbers.
+
+  Step 2. Loop over the rows and fill 3 lists:
+          all_ids    - every case id (T01 to T20)
+          code_mixed - ids where language is "code-mixed"
+          planted    - ids where planted_error is not "none"
+
+  Step 3. Look inside the folder (os.listdir) and collect the cases that
+          really have a file.
+          name[:3] means the first 3 letters of the file name, so
+          "T04_transcript.txt" becomes "T04".
+
+  Step 4. Compare. If an id is in all_ids but has no file, it goes into
+          the missing lists.
+
+  Step 5. print() the result.
+
+Why we do it like this
+  - The plan says the count script must show 20 transcripts, 20 expected
+    summaries, 5 code-mixed and 10 planted errors with their IDs.
+  - Counting by the script is faster and safer than counting by hand.
+  - Important: the "code-mixed" and "planted" numbers come from
+    MANIFEST.csv, not from reading the transcripts. If the manifest says
+    code-mixed but the transcript is English, the script will not notice.
+    So keep the manifest and the files matching.
+
+What you should see when all is done
+  transcripts: 20 / 20    expected summaries: 20 / 20
+  code-mixed (planned): 5 / 5    planted errors (planned): 10 / 10
+  missing transcript: []
+  missing summary: []
+
+
+2. db/seed.py   (S2)
+====================
+What it does
+  Makes a small database file, clinic.db, with fake patients. Each patient
+  gets one OLD approved visit. The old visit is taken from the expected
+  summary of that patient's transcript. The recall card (later story)
+  will show this old visit.
+
+How to run
+  python3 db/seed.py
+
+Why SQLite
+  SQLite is a database that lives in one file. Python already has it
+  (import sqlite3), so nothing to install and no server to start.
+
+The 4 tables (the plan names them)
+  patients   : patient_id, name, age, sex
+  visits     : the old visit (date, main complaint, medicines, advice)
+  summaries  : the full summary text of the visit
+  audit_log  : a diary - time, what happened, which visit
+
+Step by step
+  Step 1. If clinic.db already exists, delete it (os.remove).
+          Why: the plan test says "run on an EMPTY database". Deleting first
+          means every run starts clean and gives the same result.
+
+  Step 2. Create the 4 tables (CREATE TABLE).
+
+  Step 3. Collect the names of all files ending with
+          "_expected_summary.txt" and sort them, so the order is always
+          T01, T02, T03...
+
+  Step 4. For each file, read it line by line and pick what we need:
+          line starts with "Patient:"             -> name, age, sex
+          line starts with "Date:"                -> transcript date
+          line starts with "Chief complaint:"     -> main complaint
+          line starts with "Doctor instructions:" -> follow-up advice
+          lines starting with "- " after "Medicines prescribed:" -> medicines
+          (in_medicines is a flag: True while we are inside the medicine list)
+
+  Step 5. Split "Ramesh Kulkarni, 58M" at the comma.
+          Name is the left part. In "58M", the number is the age and the
+          last letter is the sex.
+          This works only if the line has exactly one comma.
+
+  Step 6. Old visit date = transcript date minus 21 days (timedelta).
+          Why: the visit in the database must be OLDER than the new
+          transcript visit.
+
+  Step 7. Make ids: "P" + number gives P01, P02... zfill(2) adds a zero in
+          front, so 1 becomes "01".
+
+  Step 8. INSERT the rows into the tables.
+          The ? signs are placeholders and the values are given separately.
+          This is the correct way to put values in SQL.
+
+  Step 9. con.commit() saves everything. Without commit nothing is saved.
+          Then print how many patients and visits were made.
+
+Why the expected summary is the old visit (option B)
+  It saves us from writing 20 extra old visits. Also the recall card and
+  the full transcript belong to the same visit, so the timing test (S10)
+  is easy to compare.
+
+Why fake data only
+  The Data and privacy part of the doc says no real patient data. Names
+  here are made up, and there is no phone number column at all.
+
+What you should see when all is done
+  patients: 20  visits: 20
+
+
+3. summary_service/summarize.py   (S3)
+======================================
+What it does
+  Reads each transcript, sends it to the Groq AI, gets a summary back as
+  JSON, checks the JSON has the right shape, and saves it in
+  results/summaries/T01.json etc.
+
+Before running
+  pip install groq
+  export GROQ_API_KEY=your_key        (on Windows: set GROQ_API_KEY=your_key)
+  Never write the key inside the code or upload it to GitHub.
+
+How to run
+  python3 summary_service/summarize.py          all transcripts
+  python3 summary_service/summarize.py T01      only T01
+
+Step by step
+  Step 1. model_name: which AI model to use. The default is written in
+          the code, and can be changed from outside with GROQ_MODEL.
+          "option b" in the comment is a smaller model to try if the first
+          one gives a rate limit error.
+
+  Step 2. prompt: the instructions we give the AI. It says:
+          - return only JSON with fixed keys,
+          - copy medicine names and doses exactly as written,
+          - do not add anything that is not in the transcript.
+          Why: the AI should only report what was said, not correct it or
+          add medical advice. The doc says the AI does not make medical
+          decisions.
+
+  Step 3. text_keys and medicine_keys: the list of keys we expect in the
+          JSON. Used later for checking.
+
+  Step 4. client = Groq() makes the connection. It reads the key from
+          GROQ_API_KEY.
+
+  Step 5. For each transcript file:
+          - read the text,
+          - send it to the AI with temperature=0,
+          - turn the answer text into a Python dictionary (json.loads).
+
+  Why temperature 0
+          Temperature is how random the AI is. 0 means the same input
+          gives (almost) the same output every time. The plan needs this
+          so a test can be repeated.
+
+  Why response_format json_object
+          It tells Groq to answer in JSON, so json.loads does not fail.
+
+  Step 6. Check the shape (this is the S3 test "20 of 20 pass the schema"):
+          every text key must be a string, medicines must be a list, and
+          each medicine must have name, dose, frequency, duration as
+          strings. If anything is missing, shape_ok becomes False.
+
+  Step 7. Save the result file with the model name, temperature 0,
+          shape_ok, and the summary.
+          Why save the model name: the plan wants us to record which model
+          was used. Groq gives only a model name, not a fixed version
+          number, so tell Hitesh this limitation.
+
+  Step 8. Print one line for each case, and a total at the end.
+
+What this file does NOT do yet
+  It does not compare the AI summary with the expected summary. That is S4
+  (the scoring script).
+
+
+Common errors and what they mean
+--------------------------------
+- FileNotFoundError: you are not in the main folder. cd into DocAssistant.
+- ModuleNotFoundError: groq   : run  pip install groq
+- Authentication / 401 error  : the key is wrong or not set.
+- Rate limit error            : too many calls too fast. Wait, or use
+                                option b (smaller model).
+- ValueError in seed.py       : a summary file has a different "Patient:"
+                                or "Date:" format. Open that file and look.
+- JSON error in summarize.py  : print the raw AI answer (the commented
+                                print line) and look at what came back.
+
+
+Why simple code
+---------------
+- You can read it top to bottom like steps.
+- If a step fails you can print() the value before it and find the problem.
+- Nothing is hidden inside functions, so it is easy to change one step.
+- Later, when you are comfortable, you can move repeated parts into
+  functions. That is optional.
