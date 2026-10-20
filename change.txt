@@ -1,0 +1,108 @@
+CHANGES TO MAKE WHEN THE REMAINING 8 TRANSCRIPTS ARE ADDED
+==========================================================
+
+Short answer: NO code has to be changed. All scripts read the test_data
+folder by themselves, so you only add the files and run the scripts again.
+
+The 8 remaining cases (already listed in test_data/MANIFEST.csv):
+  T06 (wrong medicine name)   T08 (wrong dose)
+  T09 (wrong dose)            T10 (wrong medicine name)
+  T16 (wrong medicine name)   T17 (wrong dose)
+  T18 (wrong medicine name)   T20 (wrong dose)
+
+
+STEP 0. Add the files (this is the only real work)
+--------------------------------------------------
+For each of the 8 cases, put 2 files in the test_data folder:
+    T06_transcript.txt
+    T06_expected_summary.txt
+The file names must follow exactly this pattern, otherwise the scripts will
+not find them.
+
+Rules (same as T02 and T04):
+  - The wrong medicine name or dose goes inside the transcript, in the
+    doctor's prescription line.
+  - The expected summary has the correct value.
+  - The expected summary keeps the same top lines as the other summaries:
+        Patient: Name, 58M
+        Date: 15 Oct 2026
+        Chief complaint: ...
+        Medicines prescribed:
+        - medicine line
+        Doctor instructions: ...
+    (seed.py reads these exact words, so do not rename them.)
+
+
+STEP 1. S1 - count script
+-------------------------
+Run:      python test_data/check_counts.py
+Code change needed: none.
+You should see:
+    transcripts: 20 / 20    expected summaries: 20 / 20
+    code-mixed (planned): 5 / 5    planted errors (planned): 10 / 10
+    missing transcript: []
+    missing summary: []
+Optional: in MANIFEST.csv change status from "todo" to "done" for the 8
+cases (the script does not use the status column, it is only for you).
+
+
+STEP 2. S2 - database
+---------------------
+Run:      python db/seed.py
+Code change needed: none.
+You should see:
+    patients: 20  visits: 20
+    rows with a phone number: 0
+
+
+STEP 3. S3 - AI summaries and repeat test
+-----------------------------------------
+Run (PowerShell), from the main folder:
+    $env:RUN_NAME="run1"
+    python summary_service/summarize.py
+    $env:RUN_NAME="run2"
+    python summary_service/summarize.py
+    python summary_service/compare_runs.py
+Code change needed: none.
+You should see:
+    shape ok for 20 of 20 transcripts
+    same medicines and doses on 18 (or more) of 20
+    S3 repeat test: PASS
+Old results of the 12 transcripts stay in results/summaries. If you want a
+clean start, delete the folders results/summaries/run1 and run2 before
+running again.
+
+
+WHEN YOU WOULD HAVE TO CHANGE CODE
+----------------------------------
+These are only needed if Hitesh asks for something different.
+
+1. He wants a different summary format (other top lines than "Patient:",
+   "Date:", "Chief complaint:", ...).
+   -> change the loop that reads lines in db/seed.py
+
+2. He wants a different number than 20 transcripts.
+   -> db/seed.py: nothing to change
+   -> test_data/check_counts.py: the "/ 20", "/ 5", "/ 10" in the print lines
+   -> summary_service/compare_runs.py: "total_count == 20" and ">= 18"
+   -> test_data/MANIFEST.csv: add or remove rows
+
+3. He wants a different file name pattern than T01_transcript.txt.
+   -> check_counts.py, seed.py and summarize.py all look for names ending
+      with "_transcript.txt" or "_expected_summary.txt" and use name[:3] as
+      the case number
+
+4. He wants planted errors in a different place (for example in the
+   expected summary, or a separate file).
+   -> only the 10 error cases (T02, T04, T06, T08, T09, T10, T16, T17,
+      T18, T20) have to be edited, no code
+
+5. He wants a different AI model.
+   -> summarize.py: the model_name line (or use $env:GROQ_MODEL)
+
+
+NEXT STORIES (not built yet)
+----------------------------
+S4 scoring script and S5 first T1 result will also read the same folders,
+so adding the 8 transcripts will not need code changes there either. This
+file will be updated when those are built.
