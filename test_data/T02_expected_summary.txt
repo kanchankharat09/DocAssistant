@@ -10,7 +10,7 @@ Allergies: None
 Impression: Bacterial tonsillitis
 
 Medicines prescribed:
-- Amoxicilen 500mg — three times a day after food — 5 days
+- Amoxicillin 500mg — three times a day after food — 5 days
 - Paracetamol 500mg — three times a day if fever — 3 days
 
 Doctor instructions: Gargle with warm salt water. Return if no improvement in 3 days.
