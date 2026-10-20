@@ -2,3 +2,4 @@ results/summaries/
 __pycache__/
 .env
 clinic.db
+results/selftest/
