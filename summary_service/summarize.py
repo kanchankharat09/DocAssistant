@@ -13,7 +13,7 @@ from groq import Groq
 
 # the model name can be changed from outside, check the Groq website for names
 model_name = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
-# Option B (smaller model, use it if you get a "rate limit" error):
+# option b (smaller model, use it if you get a "rate limit" error):
 # model_name = "llama-3.1-8b-instant"
 
 test_data_folder = "test_data"
@@ -59,7 +59,7 @@ for file_name in files:
             {"role": "user", "content": transcript},
         ],
     )
-    # CHECK: if this line gives a JSON error, print the raw answer to see what the AI sent
+    # check: if this line gives a JSON error, print the raw answer to see what the AI sent
     # print(answer.choices[0].message.content)
     summary = json.loads(answer.choices[0].message.content)
 
