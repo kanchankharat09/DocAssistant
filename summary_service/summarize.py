@@ -1,7 +1,7 @@
 # S3: read each transcript, ask Groq for a summary, save it as a json file.
 #
 # Setup:   pip install groq
-#          set your key:  export GROQ_API_KEY=your_key
+#          put your key in a file called .env in the main folder:  GROQ_API_KEY=your_key
 # Run:     python3 summary_service/summarize.py        (all transcripts)
 #          python3 summary_service/summarize.py T01    (only one)
 
@@ -10,6 +10,14 @@ import os
 import sys
 
 from groq import Groq
+
+# read the key from the .env file if it is there
+# (the .env file has one line like:  GROQ_API_KEY=your_key )
+if os.path.exists(".env"):
+    for line in open(".env").read().split("\n"):
+        if "=" in line and not line.startswith("#"):
+            key_name, key_value = line.split("=", 1)
+            os.environ[key_name.strip()] = key_value.strip().strip('"')
 
 # the model name can be changed from outside, check the Groq website for names
 model_name = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
