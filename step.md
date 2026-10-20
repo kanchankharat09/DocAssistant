@@ -73,19 +73,56 @@ prescription photo storage / OCR, HIS integration, WhatsApp summaries to patient
 - Before any real data: privacy notice, consent, access controls, secure storage, retention limits
   and deletion procedure must exist.
 
-## Timeline and steps
+## Architecture (Hitesh's diagram)
 
-| Step | Task | Due | Status |
-|------|------|-----|--------|
-| 0a | Hypothesis doc V1.0 in Margadeshaka template, two Patient History copies merged | 16 Oct | Done |
-| 0b | Accept or reject all ~25 of Hitesh's suggestions in the doc (incl. hypothesis statement, 90d/7d retention); reply "Done" on the Ideas task | now | **Open** |
-| S1 | 20 synthetic transcripts + hand-written expected summaries (>= 5 code-mixed); send Hitesh the count | 19 Oct | **Overdue** |
-| S2 | 20 fictional patients with previous visits | 20 Oct | **Due today** |
-| S3 to S12 | Remaining stories, each with a numeric test (summaries, dose flags, recall card, approval screen, timing, etc.) | 21 to 27 Oct | See plan doc |
-| Gate | If T1 < 14/20 after first prompt fix, next week goes to the prompt, not new features | Fri 23 Oct | Pending |
-| Build | MVP finished: summaries, dose flags, recall card, review screen | Tue 27 Oct | Pending |
-| Tests | Run T1 to T5, record actual numbers, Pass/Fail | 29 Oct | Pending |
-| Results | Results note + go / fix / stop decision, review with Hitesh | 30 Oct | Pending |
+Three layers, fictional data only:
+- **Web app:** 1 pick transcript (from `test_data`), 3 review screen (flags, edit, approve), 5 search patient (shows recall card).
+- **Backend API:** 2a summary service, 2b dose and medicine checker (rules), 4 approve and save, 6 recall card service (DB lookup).
+- **Model and data:** LLM (temperature 0, pinned model, returns JSON summary), audit log (model version, prompts, edits, approvals), patients and visits DB.
+- **Test only (dotted):** `test_data` folder (20 transcripts + expected summaries, 5 code-mixed) and a test harness (T1 to T5) that runs the pipeline and scores Pass/Fail.
+
+Diagram file: `Patient_History_Assistant_Architecture.svg`.
+
+## Two-week build plan (19 to 30 Oct 2026)
+
+Check-in with test numbers to Hitesh every Fri 23 and Fri 30 Oct.
+
+### Week 1: data, summary service, first T1 run
+
+| Day | Story | Done when (test) |
+|-----|-------|------------------|
+| Mon 19 Oct | **S1** 20 synthetic transcripts + expected summaries; 5 code-mixed; 10 with one planted error (5 wrong medicine names, 5 wrong doses) | Count script shows 20 transcripts, 20 expected summaries, 5 code-mixed, 10 planted errors listed with IDs |
+| Tue 20 Oct | **S2** 20 fictional patients, each with a prior approved visit. Tables: patients, visits, summaries, audit log | Seed script on an empty DB loads 20 patients + 20 visits; 0 rows with a real name or phone |
+| Wed 21 Oct | **S3** Transcript to structured summary (symptoms, duration, history, medicines with dose and frequency). Model pinned, temperature 0 | 20/20 outputs pass JSON schema; second run gives same medicines and doses on >= 18/20 |
+| Thu 22 Oct | **S4** Scoring script for T1 | Perfect file scores 20/20; copy with one dose removed scores 19/20 |
+| Fri 23 Oct | **S5** First T1 result + one prompt fix | Before/after scores and changed prompt written in the results sheet. **Gate:** < 14/20 after the fix means Mon 26 Oct goes to prompt and schema work, not new features |
+
+### Week 2: checks, screens, tests, results
+
+| Day | Story | Done when (test) |
+|-----|-------|------------------|
+| Mon 26 Oct | **S6** Flag wrong or doubtful medicine names and doses | 10/10 planted errors flagged; at most 2 of 10 clean transcripts falsely flagged |
+| Mon 26 Oct | **S9** Search patient, show recall card (visit date, main complaint, medicines with doses, follow-up advice) | 20/20 cards open for the right patient; 4/4 fields correct on every card |
+| Tue 27 Oct | **S7** Review screen showing summary and flags | Approve with an unhandled flag is blocked; after fix or dismiss, Approve works |
+| Tue 27 Oct | **S8** Approve and save; every action in audit log. **Build done by end of day** | Approve 15 of 20, leave 5: 15 saved, 0 unapproved saved, audit log has 20/20 entries with time and action |
+| Wed 28 Oct | **S10** Timing sessions with 3 role-playing doctors; run T1 to T3 on final build | Median recall-card lookup < 15 s and >= 2x faster than reading the transcript; approval < 30 s |
+| Thu 29 Oct | **S11** Run T4 and T5, then re-run all T1 to T5 on the final build | Each test shows Pass/Fail with its number; nothing changed after this run |
+| Fri 30 Oct | **S12** Results note (max 1 page) + review with Hitesh | Each test number against its target, plus a go / fix / stop call |
+
+### Rules and risks
+
+- Mock data only: no real names, phones or recordings.
+- Model and prompt pinned, temperature 0, so runs can be repeated.
+- Nothing is saved until the doctor approves; audit log records every action.
+- If the build slips, drop search polish, not the tests.
+- Week 1 gate: if T1 < 14/20 after the first prompt fix, Mon 26 Oct goes to prompt and schema work and the dose checker (S6) moves to Tue.
+
+### Before the plan (hypothesis doc housekeeping)
+
+| Task | Status |
+|------|--------|
+| Accept or reject Hitesh's ~25 suggestions in the hypothesis doc (incl. 90 d / 7 d retention); reply "Done" on the Ideas task | **Open** |
+| Send Hitesh the transcript count when S1 is ready | **Open** |
 
 ## Optional
 
@@ -95,5 +132,4 @@ want this. Interviews are still needed to validate the real-world problem.
 ## Open items to settle together
 
 - Retention (90 d / 7 d): agree or counter.
-- S3 to S12 are listed in Hitesh's plan doc; copy them into the table above so one file is enough.
 - Where the code lives (this repo, `DocAssistant`) and the stack: not decided in the docs yet.
