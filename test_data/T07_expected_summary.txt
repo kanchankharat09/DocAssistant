@@ -1,0 +1,16 @@
+Patient: Arjun Patil, 35M
+Date: 15 Oct 2026
+Visit type: First visit
+
+Chief complaint: Loose motions 5-6 times a day for 2 days, mild abdominal pain
+Duration: 2 days
+Associated symptoms: No vomiting, no fever. Mild abdominal tenderness.
+Past history: No other illness
+Allergies: None
+Impression: Gastroenteritis
+
+Medicines prescribed:
+- Racecadotril 100mg — three times a day before food — 3 days
+- ORS solution — after every loose motion
+
+Doctor instructions: Avoid outside food. Return if not better in 3 days or if fever develops.

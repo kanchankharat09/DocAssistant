@@ -1,0 +1,16 @@
+Patient: Imran Sheikh, 38M
+Date: 15 Oct 2026
+Visit type: First visit
+
+Chief complaint: Itching and red spots near the groin for 2 weeks, worse with sweating
+Duration: 2 weeks
+Associated symptoms: Ring-shaped red patch
+Past history: No diabetes, no BP, no other illness. No earlier treatment.
+Allergies: None
+Impression: Fungal skin infection
+
+Medicines prescribed:
+- Clotrimazole cream — apply on the affected area twice a day — 2 weeks
+- Fluconazole 150mg — once a week — 2 weeks
+
+Doctor instructions: Wear loose cotton clothes. Keep the area dry. Return if not better after 2 weeks.

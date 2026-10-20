@@ -1,0 +1,12 @@
+Patient: Kishan Lal, 60M
+Date: 15 Oct 2026
+Type: First visit
+
+Doctor: Namaste Kishan ji. Kya takleef hai?
+Patient: Doctor sahab, right knee mein dard hai, ek hafte se. Seedhi chadhne mein zyada hota hai.
+Doctor: Koi chot lagi thi? Sujan hai?
+Patient: Chot nahi lagi, halki sujan hai.
+Doctor: Koi purani bimari?
+Patient: Sugar hai, 8 saal se. Metformin 500mg subah shaam leta hoon. Allergy koi nahi.
+Doctor: Knee mein halki sujan hai. Ye arthritis ka dard hai. Main Diclofenac 50mg likh raha hoon, din mein do baar khane ke baad, 5 din ke liye, aur Pantoprazole 40mg din mein ek baar subah, 5 din ke liye. Metformin pehle jaisi chalegi. Garam sikai karo din mein do baar. Zyada seedhi chadhna avoid karo. Agar dard 5 din baad bhi rahe to wapas aana.
+Patient: Ok doctor.

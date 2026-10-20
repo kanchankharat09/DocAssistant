@@ -1,0 +1,16 @@
+Patient: Pooja Nair, 26F
+Date: 15 Oct 2026
+Visit type: First visit
+
+Chief complaint: Headache, blocked nose and mild cold for 3 days
+Duration: 3 days
+Associated symptoms: No fever. Nasal congestion, throat normal.
+Past history: No other illness
+Allergies: None
+Impression: Common cold
+
+Medicines prescribed:
+- Cetirizine 10mg — once a day at night — 5 days
+- Paracetamol 500mg — only if needed for headache, maximum 3 times a day
+
+Doctor instructions: Steam inhalation twice a day. Return if not better in 5 days.

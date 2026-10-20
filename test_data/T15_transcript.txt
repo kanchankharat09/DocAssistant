@@ -1,0 +1,10 @@
+Patient: Pooja Nair, 26F
+Date: 15 Oct 2026
+Type: First visit
+
+Doctor: Hello Pooja. Kya problem hai?
+Patient: Doctor, 3 din se sir mein dard hai aur naak band hai. Halka cold bhi hai.
+Doctor: Bukhar hai? Koi allergy ya purani bimari?
+Patient: Bukhar nahi hai. Koi bimari ya allergy nahi hai.
+Doctor: Naak mein sujan hai, throat normal hai. Ye common cold hai. Main Cetirizine 10mg likh raha hoon, din mein ek baar raat ko, 5 din ke liye. Sir dard ho to Paracetamol 500mg, zaroorat padne par, din mein maximum 3 baar. Garam paani ki bhaap lo din mein 2 baar. Agar 5 din mein theek na ho to wapas aana.
+Patient: Ok doctor, thanks.

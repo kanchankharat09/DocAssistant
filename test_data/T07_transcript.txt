@@ -1,0 +1,12 @@
+Patient: Arjun Patil, 35M
+Date: 15 Oct 2026
+Type: First visit
+
+Doctor: Namaste Arjun. Bataiye, kya problem hai?
+Patient: Doctor, 2 din se loose motion ho rahe hain, din mein 5-6 baar. Pet mein halka dard bhi hai.
+Doctor: Ulti ya bukhar hai?
+Patient: Ulti nahi hai, bukhar bhi nahi.
+Doctor: Koi purani bimari ya allergy?
+Patient: Nahi doctor, kuch nahi.
+Doctor: Pet thoda tender hai. Ye gastroenteritis lag raha hai. Main Racecadotril 100mg likh raha hoon, din mein teen baar khane se pehle, 3 din ke liye. ORS ka ghol har loose motion ke baad piyo. Bahar ka khana avoid karo. Agar 3 din mein theek na ho ya bukhar aaye to wapas aana.
+Patient: Ok doctor, thank you.

@@ -1,0 +1,12 @@
+Patient: Meera Iyer, 29F
+Date: 15 Oct 2026
+Type: First visit
+
+Doctor: Hello Meera. What is the problem?
+Patient: Doctor, burning while passing urine since 2 days. I pass urine again and again.
+Doctor: Any fever? Any back pain?
+Patient: No fever, no back pain.
+Doctor: Any other illness or allergies?
+Patient: No other illness. No allergies.
+Doctor: This looks like a urine infection. I am prescribing Nitrofurantoin 100mg twice a day after food for 5 days. Drink plenty of water, at least 3 litres a day. Come back if the burning continues after 5 days.
+Patient: Ok doctor.

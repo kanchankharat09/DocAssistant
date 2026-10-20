@@ -1,0 +1,10 @@
+Patient: Imran Sheikh, 38M
+Date: 15 Oct 2026
+Type: First visit
+
+Doctor: Assalam walaikum Imran bhai. Bataiye kya problem hai?
+Patient: Doctor, jaangh ke paas khujli aur laal daane hain, do hafte se. Pasine mein zyada hota hai.
+Doctor: Koi dawai pehle lagayi?
+Patient: Nahi, kuch nahi lagaya. Sugar ya BP nahi hai. Allergy bhi nahi.
+Doctor: Laal gola ring jaisa patch hai. Ye fungal infection hai. Main Clotrimazole cream likh raha hoon, din mein do baar prabhavit jagah par lagana, 2 hafte ke liye. Saath mein Fluconazole 150mg, hafte mein ek baar, 2 hafte ke liye. Dhile aur cotton ke kapde pehno. Jagah ko sukha rakho. Agar 2 hafte baad bhi na jaaye to wapas aana.
+Patient: Ok doctor.

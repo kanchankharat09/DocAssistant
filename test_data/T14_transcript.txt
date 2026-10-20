@@ -1,0 +1,12 @@
+Patient: Anjali Desai, 34F
+Date: 14 Oct 2026
+Type: First visit
+
+Doctor: Hello Anjali. What is the problem?
+Patient: Doctor, I have itchy red rash on both arms and chest since 3 days. It started after I ate prawns.
+Doctor: Any swelling of lips or face? Any difficulty in breathing?
+Patient: No swelling, no breathing problem.
+Doctor: Any allergies before this?
+Patient: No, I have no known allergies before this.
+Doctor: The rash is raised and red on both arms and chest. This is an allergic reaction, urticaria. I am prescribing Levocetirizine 5mg once a day at night for 5 days and Calamine lotion to apply on the rash twice a day for 5 days. Avoid prawns. Come back immediately if lips or face swell or you feel breathless.
+Patient: Ok doctor.

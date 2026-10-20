@@ -1,0 +1,17 @@
+Patient: Kishan Lal, 60M
+Date: 15 Oct 2026
+Visit type: First visit
+
+Chief complaint: Right knee pain for 1 week, worse on climbing stairs
+Duration: 1 week
+Associated symptoms: Mild swelling of knee, no injury
+Past history: Diabetes for 8 years, on Metformin 500mg morning and evening
+Allergies: None
+Impression: Arthritis pain
+
+Medicines prescribed:
+- Diclofenac 50mg — twice a day after food — 5 days
+- Pantoprazole 40mg — once a day in the morning — 5 days
+- Metformin 500mg — morning and evening — continue as before
+
+Doctor instructions: Hot compress twice a day. Avoid climbing stairs too much. Return if pain continues after 5 days.
