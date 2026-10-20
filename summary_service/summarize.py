@@ -24,9 +24,9 @@ the_key = os.environ.get("GROQ_API_KEY", "")
 print("key starts with:", the_key[:4], " length:", len(the_key))
 
 # the model name can be changed from outside, check the Groq website for names
-model_name = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
+model_name = os.environ.get("GROQ_MODEL", "openai/gpt-oss-120b")
 # option b (smaller model, use it if you get a "rate limit" error):
-# model_name = "llama-3.1-8b-instant"
+# model_name = "openai/gpt-oss-20b"
 
 test_data_folder = "test_data"
 output_folder = "results/summaries"
