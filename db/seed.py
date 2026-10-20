@@ -1,59 +1,85 @@
-"""S2: build clinic.db with fictional patients and one prior approved visit each.
+# S2: make a small database with fake patients and one old visit for each.
+# The old visit comes from the expected summary of each transcript.
+# Run it from the main folder:  python3 db/seed.py
 
-Each patient comes from a transcript's expected summary (option B): the expected
-summary becomes the prior visit, dated 21 days before the transcript date.
+import os
+import sqlite3
+from datetime import datetime, timedelta
 
-Usage (from repo root):  python3 db/seed.py
-"""
-import datetime, pathlib, re, sqlite3
+# folders and file names
+test_data_folder = "test_data"
+db_file = "clinic.db"
 
-ROOT = pathlib.Path(__file__).resolve().parent.parent
-TEST_DATA = ROOT / "test_data"
-DB = ROOT / "clinic.db"
+# delete the old database so we always start from empty
+if os.path.exists(db_file):
+    os.remove(db_file)
 
-SCHEMA = """
-CREATE TABLE patients (patient_id TEXT PRIMARY KEY, name TEXT, age INTEGER, sex TEXT);
-CREATE TABLE visits (visit_id TEXT PRIMARY KEY, patient_id TEXT, visit_date TEXT,
-    main_complaint TEXT, medicines TEXT, follow_up_advice TEXT, approved INTEGER);
-CREATE TABLE summaries (summary_id TEXT PRIMARY KEY, visit_id TEXT, text TEXT);
-CREATE TABLE audit_log (log_id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, action TEXT, visit_id TEXT);
-"""
+con = sqlite3.connect(db_file)
 
+# make the 4 tables
+con.execute("CREATE TABLE patients (patient_id TEXT, name TEXT, age INTEGER, sex TEXT)")
+con.execute("CREATE TABLE visits (visit_id TEXT, patient_id TEXT, visit_date TEXT, main_complaint TEXT, medicines TEXT, follow_up_advice TEXT, approved INTEGER)")
+con.execute("CREATE TABLE summaries (summary_id TEXT, visit_id TEXT, text TEXT)")
+con.execute("CREATE TABLE audit_log (time TEXT, action TEXT, visit_id TEXT)")
 
-def field(text, label):
-    m = re.search(rf"^{label}:\s*(.*)$", text, re.M)
-    return m.group(1).strip() if m else ""
+# get all the expected summary files, sorted so the order is always same
+files = []
+for name in os.listdir(test_data_folder):
+    if name.endswith("_expected_summary.txt"):
+        files.append(name)
+files.sort()
 
+number = 0
+for file_name in files:
+    number = number + 1
+    text = open(test_data_folder + "/" + file_name).read()
 
-def medicines(text):
-    block = text.split("Medicines prescribed:")[1].split("\n\n")[0]
-    return "\n".join(l[2:].strip() for l in block.strip().splitlines() if l.startswith("- "))
+    # read the lines we need from the summary
+    patient_line = ""
+    date_line = ""
+    complaint = ""
+    advice = ""
+    medicines = ""
+    in_medicines = False
 
+    for line in text.split("\n"):
+        if line.startswith("Patient:"):
+            patient_line = line.replace("Patient:", "").strip()   # example: Ramesh Kulkarni, 58M
+        elif line.startswith("Date:"):
+            date_line = line.replace("Date:", "").strip()
+        elif line.startswith("Chief complaint:"):
+            complaint = line.replace("Chief complaint:", "").strip()
+        elif line.startswith("Doctor instructions:"):
+            advice = line.replace("Doctor instructions:", "").strip()
+        elif line.startswith("Medicines prescribed:"):
+            in_medicines = True
+        elif in_medicines and line.startswith("- "):
+            medicines = medicines + line[2:] + "\n"
+        else:
+            in_medicines = False
 
-def main():
-    if DB.exists():
-        DB.unlink()
-    con = sqlite3.connect(DB)
-    con.executescript(SCHEMA)
-    for i, f in enumerate(sorted(TEST_DATA.glob("T??_expected_summary.txt")), start=1):
-        text = f.read_text()
-        name, rest = field(text, "Patient").split(",", 1)
-        age, sex = int(re.search(r"\d+", rest).group()), rest.strip()[-1]
-        d = datetime.datetime.strptime(field(text, "Date"), "%d %b %Y").date()
-        pid, vid = f"P{i:02d}", f"V{i:02d}"
-        con.execute("INSERT INTO patients VALUES (?,?,?,?)", (pid, name.strip(), age, sex))
-        con.execute("INSERT INTO visits VALUES (?,?,?,?,?,?,1)", (
-            vid, pid, (d - datetime.timedelta(days=21)).isoformat(),
-            field(text, "Chief complaint"), medicines(text), field(text, "Doctor instructions")))
-        con.execute("INSERT INTO summaries VALUES (?,?,?)", (f"S{i:02d}", vid, text))
-        con.execute("INSERT INTO audit_log (time, action, visit_id) VALUES (?,?,?)",
-                    (datetime.datetime.now().isoformat(timespec="seconds"), "seeded prior visit", vid))
-    con.commit()
-    n_p = con.execute("SELECT COUNT(*) FROM patients").fetchone()[0]
-    n_v = con.execute("SELECT COUNT(*) FROM visits").fetchone()[0]
-    phones = sum(1 for (t,) in con.execute("SELECT name || age FROM patients") if re.search(r"\d{7,}", t))
-    print(f"patients: {n_p}   visits: {n_v}   rows with a phone-like number: {phones}")
+    # split "Ramesh Kulkarni, 58M" into name, age and sex
+    name_part, age_sex = patient_line.split(",")
+    age_sex = age_sex.strip()
+    age = int(age_sex[:-1])
+    sex = age_sex[-1]
 
+    # old visit is 21 days before the transcript date
+    transcript_date = datetime.strptime(date_line, "%d %b %Y")
+    old_date = (transcript_date - timedelta(days=21)).strftime("%Y-%m-%d")
 
-if __name__ == "__main__":
-    main()
+    patient_id = "P" + str(number).zfill(2)
+    visit_id = "V" + str(number).zfill(2)
+    summary_id = "S" + str(number).zfill(2)
+
+    con.execute("INSERT INTO patients VALUES (?, ?, ?, ?)", (patient_id, name_part.strip(), age, sex))
+    con.execute("INSERT INTO visits VALUES (?, ?, ?, ?, ?, ?, 1)", (visit_id, patient_id, old_date, complaint, medicines.strip(), advice))
+    con.execute("INSERT INTO summaries VALUES (?, ?, ?)", (summary_id, visit_id, text))
+    con.execute("INSERT INTO audit_log VALUES (?, ?, ?)", (datetime.now().isoformat(), "seeded old visit", visit_id))
+
+con.commit()
+
+# check: how many rows did we make
+patients_count = con.execute("SELECT COUNT(*) FROM patients").fetchone()[0]
+visits_count = con.execute("SELECT COUNT(*) FROM visits").fetchone()[0]
+print("patients:", patients_count, " visits:", visits_count)

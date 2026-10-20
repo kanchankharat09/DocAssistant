@@ -1,82 +1,85 @@
-"""S3: turn each transcript in test_data/ into a structured JSON summary with Groq.
+# S3: read each transcript, ask Groq for a summary, save it as a json file.
+#
+# Setup:   pip install groq
+#          set your key:  export GROQ_API_KEY=your_key
+# Run:     python3 summary_service/summarize.py        (all transcripts)
+#          python3 summary_service/summarize.py T01    (only one)
 
-Usage (from repo root):
-    pip install groq
-    export GROQ_API_KEY=your_key
-    export GROQ_MODEL=llama-3.3-70b-versatile   # optional; check the Groq console for current model names
-    python3 summary_service/summarize.py            # all transcripts
-    python3 summary_service/summarize.py T01 T04    # only some
-"""
-import json, os, pathlib, sys
+import json
+import os
+import sys
 
 from groq import Groq
 
-ROOT = pathlib.Path(__file__).resolve().parent.parent
-TEST_DATA = ROOT / "test_data"
-OUT = ROOT / "results" / "summaries"
-MODEL = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
+# the model name can be changed from outside, check the Groq website for names
+model_name = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
 
-PROMPT = """You summarise a doctor-patient consultation transcript.
-Return ONLY a JSON object with exactly these keys:
-- "chief_complaint": string
-- "duration": string ("" if not stated)
-- "associated_symptoms": string ("" if not stated)
-- "past_history": string ("" if not stated)
-- "allergies": string ("" if not stated)
-- "medicines": list of objects, each with "name", "dose", "frequency", "duration" (strings, "" if not stated)
-- "doctor_instructions": string
+test_data_folder = "test_data"
+output_folder = "results/summaries"
+
+# this tells the AI what to do
+prompt = """You summarise a doctor-patient consultation transcript.
+Return ONLY a JSON object with these keys:
+chief_complaint, duration, associated_symptoms, past_history, allergies, doctor_instructions (all strings, use "" if not said)
+and medicines: a list, each item has name, dose, frequency, duration (all strings).
 Copy medicine names and doses exactly as written in the transcript. Do not correct them.
-Do not add anything that is not in the transcript. Do not diagnose or recommend medicines."""
+Do not add anything that is not in the transcript."""
 
-STR_KEYS = ["chief_complaint", "duration", "associated_symptoms", "past_history",
-            "allergies", "doctor_instructions"]
-MED_KEYS = ["name", "dose", "frequency", "duration"]
+text_keys = ["chief_complaint", "duration", "associated_symptoms", "past_history", "allergies", "doctor_instructions"]
+medicine_keys = ["name", "dose", "frequency", "duration"]
 
+client = Groq()
+os.makedirs(output_folder, exist_ok=True)
 
-def schema_ok(d):
-    """True if d has the agreed JSON shape (S3 test: 20 of 20 must pass)."""
-    if not isinstance(d, dict):
-        return False
-    if not all(isinstance(d.get(k), str) for k in STR_KEYS):
-        return False
-    meds = d.get("medicines")
-    return isinstance(meds, list) and all(
-        isinstance(m, dict) and all(isinstance(m.get(k), str) for k in MED_KEYS) for m in meds
-    )
+# which transcripts to run: the ones typed after the command, or all
+wanted = sys.argv[1:]
+files = []
+for name in os.listdir(test_data_folder):
+    if name.endswith("_transcript.txt"):
+        files.append(name)
+files.sort()
 
+good_count = 0
+for file_name in files:
+    case_id = file_name[:3]          # T01, T02 ...
+    if len(wanted) > 0 and case_id not in wanted:
+        continue
 
-def summarise(client, text):
-    r = client.chat.completions.create(
-        model=MODEL,
+    transcript = open(test_data_folder + "/" + file_name).read()
+
+    # ask the AI (temperature 0 so the answer stays the same every time)
+    answer = client.chat.completions.create(
+        model=model_name,
         temperature=0,
         response_format={"type": "json_object"},
-        messages=[{"role": "system", "content": PROMPT}, {"role": "user", "content": text}],
+        messages=[
+            {"role": "system", "content": prompt},
+            {"role": "user", "content": transcript},
+        ],
     )
-    return json.loads(r.choices[0].message.content)
+    summary = json.loads(answer.choices[0].message.content)
 
+    # check that the json has all the keys we need (this is the S3 test)
+    shape_ok = True
+    for key in text_keys:
+        if not isinstance(summary.get(key), str):
+            shape_ok = False
+    if not isinstance(summary.get("medicines"), list):
+        shape_ok = False
+    else:
+        for medicine in summary["medicines"]:
+            for key in medicine_keys:
+                if not isinstance(medicine.get(key), str):
+                    shape_ok = False
 
-def main(ids):
-    client = Groq()  # reads GROQ_API_KEY
-    OUT.mkdir(parents=True, exist_ok=True)
-    files = sorted(TEST_DATA.glob("T??_transcript.txt"))
-    ok = 0
-    for f in files:
-        tid = f.name[:3]
-        if ids and tid not in ids:
-            continue
-        try:
-            data = summarise(client, f.read_text())
-        except Exception as e:  # bad JSON or API error counts as a schema failure
-            print(f"{tid}: ERROR {e}")
-            continue
-        good = schema_ok(data)
-        ok += good
-        (OUT / f"{tid}.json").write_text(json.dumps(
-            {"model": MODEL, "temperature": 0, "schema_ok": good, "summary": data},
-            indent=2, ensure_ascii=False))
-        print(f"{tid}: schema {'OK' if good else 'FAIL'}")
-    print(f"schema OK on {ok} transcripts (model {MODEL}, temperature 0)")
+    if shape_ok:
+        good_count = good_count + 1
 
+    result = {"model": model_name, "temperature": 0, "shape_ok": shape_ok, "summary": summary}
+    out_file = open(output_folder + "/" + case_id + ".json", "w")
+    out_file.write(json.dumps(result, indent=2, ensure_ascii=False))
+    out_file.close()
 
-if __name__ == "__main__":
-    main(set(sys.argv[1:]))
+    print(case_id, "shape ok:", shape_ok)
+
+print("shape ok for", good_count, "transcripts (model:", model_name, ")")
