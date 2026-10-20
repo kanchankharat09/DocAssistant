@@ -1,0 +1,15 @@
+Patient: Vikram Singh, 40M
+Date: 14 Oct 2026
+Visit type: First visit
+
+Chief complaint: Lower back pain for 3 days after lifting a heavy box
+Duration: 3 days
+Associated symptoms: No leg pain, no numbness, no problem passing urine or stool. Back muscles tender on both sides.
+Allergies: None
+Impression: Muscle strain
+
+Medicines prescribed:
+- Naproxen 500mg — twice a day after food — 5 days
+- Pantoprazole 40mg — once a day before breakfast — 5 days
+
+Doctor instructions: Hot compress twice a day. Avoid lifting heavy weight. Return immediately if leg weakness, numbness, or trouble passing urine.

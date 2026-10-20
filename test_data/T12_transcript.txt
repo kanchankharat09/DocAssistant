@@ -1,0 +1,10 @@
+Patient: Lakshmi Reddy, 55F
+Date: 14 Oct 2026
+Type: Follow-up (known hypothyroidism)
+
+Doctor: Hello Lakshmi. How are you feeling?
+Patient: Doctor, I am very tired and gaining weight. Feeling cold also.
+Doctor: Are you taking Levothyroxine 50 micrograms every morning?
+Patient: Yes, every day on empty stomach.
+Doctor: Your TSH report is 7.8, which is high. Last time I gave you 50 micrograms. Now I am increasing Levothyroxine to 75 micrograms once a day in the morning on empty stomach, 30 to 60 minutes before breakfast. Keep calcium and iron tablets at least 4 hours apart from it. We will repeat TSH in 6 weeks.
+Patient: Ok doctor.

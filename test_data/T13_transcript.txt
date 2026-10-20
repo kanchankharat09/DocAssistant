@@ -1,0 +1,14 @@
+Patient: Vikram Singh, 40M
+Date: 14 Oct 2026
+Type: First visit
+
+Doctor: Hello Vikram. What is the problem?
+Patient: Doctor, lower back pain since 3 days. I lifted a heavy box at the shop.
+Doctor: Does the pain go down to the leg? Any numbness or weakness?
+Patient: No leg pain, no numbness.
+Doctor: Any problem passing urine or stool?
+Patient: No.
+Doctor: Any allergies?
+Patient: None.
+Doctor: Back muscles are tender on both sides. This is muscle strain. I am prescribing Naproxen 500mg twice a day after food for 5 days and Pantoprazole 40mg once a day before breakfast for 5 days. Apply hot compress twice a day. Avoid lifting heavy weight. Come back immediately if you get leg weakness, numbness, or trouble passing urine.
+Patient: Ok doctor.
