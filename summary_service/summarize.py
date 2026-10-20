@@ -29,7 +29,10 @@ model_name = os.environ.get("GROQ_MODEL", "openai/gpt-oss-120b")
 # model_name = "openai/gpt-oss-20b"
 
 test_data_folder = "test_data"
-output_folder = "results/summaries"
+# each run is saved in its own folder, so two runs can be compared later.
+# change the name from outside with RUN_NAME, example: run1, run2
+run_name = os.environ.get("RUN_NAME", "run1")
+output_folder = "results/summaries/" + run_name
 
 # this tells the AI what to do
 prompt = """You summarise a doctor-patient consultation transcript.
@@ -54,11 +57,13 @@ for name in os.listdir(test_data_folder):
 files.sort()
 
 good_count = 0
+total_count = 0
 for file_name in files:
     case_id = file_name[:3]          # T01, T02 ...
     if len(wanted) > 0 and case_id not in wanted:
         continue
 
+    total_count = total_count + 1
     transcript = open(test_data_folder + "/" + file_name).read()
 
     # ask the AI (temperature 0 so the answer stays the same every time)
@@ -97,4 +102,4 @@ for file_name in files:
 
     print(case_id, "shape ok:", shape_ok)
 
-print("shape ok for", good_count, "transcripts (model:", model_name, ")")
+print("shape ok for", good_count, "of", total_count, "transcripts (model:", model_name, ", run:", run_name, ")")
