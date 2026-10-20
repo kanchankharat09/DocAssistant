@@ -34,13 +34,11 @@ test_data_folder = "test_data"
 run_name = os.environ.get("RUN_NAME", "run1")
 output_folder = "results/summaries/" + run_name
 
-# this tells the AI what to do
-prompt = """You summarise a doctor-patient consultation transcript.
-Return ONLY a JSON object with these keys:
-chief_complaint, duration, associated_symptoms, past_history, allergies, doctor_instructions (all strings, use "" if not said)
-and medicines: a list, each item has name, dose, frequency, duration (all strings).
-Copy medicine names and doses exactly as written in the transcript. Do not correct them.
-Do not add anything that is not in the transcript."""
+# the instructions for the AI are kept in a text file, so we can change the prompt
+# without touching the code. to try another prompt: copy prompt_v1.txt to prompt_v2.txt,
+# edit it, and run with   $env:PROMPT_FILE="summary_service/prompt_v2.txt"
+prompt_file = os.environ.get("PROMPT_FILE", "summary_service/prompt_v1.txt")
+prompt = open(prompt_file, encoding="utf-8").read()
 
 text_keys = ["chief_complaint", "duration", "associated_symptoms", "past_history", "allergies", "doctor_instructions"]
 medicine_keys = ["name", "dose", "frequency", "duration"]
@@ -95,11 +93,11 @@ for file_name in files:
     if shape_ok:
         good_count = good_count + 1
 
-    result = {"model": model_name, "temperature": 0, "shape_ok": shape_ok, "summary": summary}
+    result = {"model": model_name, "temperature": 0, "prompt_file": prompt_file, "shape_ok": shape_ok, "summary": summary}
     out_file = open(output_folder + "/" + case_id + ".json", "w")
     out_file.write(json.dumps(result, indent=2, ensure_ascii=False))
     out_file.close()
 
     print(case_id, "shape ok:", shape_ok)
 
-print("shape ok for", good_count, "of", total_count, "transcripts (model:", model_name, ", run:", run_name, ")")
+print("shape ok for", good_count, "of", total_count, "transcripts (model:", model_name, ", prompt:", prompt_file, ", run:", run_name, ")")

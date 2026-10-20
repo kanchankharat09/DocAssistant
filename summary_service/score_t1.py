@@ -8,9 +8,11 @@
 # This version checks medicine name and dose only. Symptoms, duration, history
 # and frequency still have to be read by hand for now.
 
+import csv
 import json
 import os
 import sys
+from datetime import datetime
 
 test_data_folder = "test_data"
 
@@ -110,6 +112,30 @@ else:
         run_name = sys.argv[1]
     passed, total = score_folder("results/summaries/" + run_name)
     print("T1 score:", passed, "of", total)
+
+    # write this score in the results sheet (S5). it keeps the model and the prompt of the run.
+    model_used = ""
+    prompt_used = ""
+    first_json = "results/summaries/" + run_name
+    for name in sorted(os.listdir(first_json)):
+        if name.endswith(".json"):
+            info = json.loads(open(first_json + "/" + name, encoding="utf-8").read())
+            model_used = info.get("model", "")
+            prompt_used = info.get("prompt_file", "")
+            break
+    sheet = "results/results_sheet.csv"
+    is_new = not os.path.exists(sheet)
+    sheet_file = open(sheet, "a", newline="", encoding="utf-8")
+    writer = csv.writer(sheet_file)
+    if is_new:
+        writer.writerow(["time", "run", "model", "prompt_file", "passed", "total"])
+    writer.writerow([datetime.now().isoformat(timespec="seconds"), run_name, model_used, prompt_used, passed, total])
+    sheet_file.close()
+    print("written in", sheet)
+
+    # the Friday gate from the plan
+    if total == 20 and passed < 14:
+        print("GATE: below 14 of 20. Next Monday goes to prompt and schema work, not new features.")
     if total == 20:
         if passed >= 18:
             print("T1: PASS (needs at least 18 of 20)")
