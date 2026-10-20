@@ -1,0 +1,16 @@
+Patient: Sunita Verma, 45F
+Date: 15 Oct 2026
+Visit type: First visit
+
+Chief complaint: Acidity and burning in stomach for 4 days, worse after meals; excess gas
+Duration: 4 days
+Associated symptoms: No vomiting. Mild upper abdominal tenderness.
+Past history: No BP, no sugar, no other illness
+Allergies: None
+Impression: Acidity
+
+Medicines prescribed:
+- Pantoprazole 40mg — once a day in the morning on empty stomach — 7 days
+- Domperidone 10mg — twice a day before food — 5 days
+
+Doctor instructions: Avoid spicy and oily food. Return if burning continues after 7 days.

@@ -1,0 +1,12 @@
+Patient: Sunita Verma, 45F
+Date: 15 Oct 2026
+Type: First visit
+
+Doctor: Namaste Sunita ji. Bataiye, kya problem hai?
+Patient: Doctor sahab, pichle 4 din se pet mein acidity aur jalan hai. Khana khane ke baad zyada hota hai.
+Doctor: Koi ulti ya motion ki problem?
+Patient: Ulti nahi hui, bas gas bahut banti hai.
+Doctor: Koi purani bimari, jaise BP ya sugar?
+Patient: Nahi doctor, kuch nahi hai. Allergy bhi koi nahi.
+Doctor: Theek hai. Pet mein upar thoda tenderness hai. Ye acidity hai. Main Pantoprazole 40mg likh raha hoon, din mein ek baar subah khali pet, 7 din ke liye. Saath mein Domperidone 10mg, din mein do baar khane se pehle, 5 din ke liye. Teekha aur tala hua khana avoid karo. Agar 7 din baad bhi jalan rahe to wapas aana.
+Patient: Ok doctor, thank you.

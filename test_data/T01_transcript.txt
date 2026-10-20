@@ -1,0 +1,12 @@
+Patient: Rohan Mehta, 28M
+Date: 15 Oct 2026
+Type: First visit
+
+Doctor: Hello Rohan. What is the problem?
+Patient: Doctor, I have fever and body ache since 2 days. Also a little cough.
+Doctor: Any difficulty in breathing? Any other illness like diabetes or BP?
+Patient: No breathing problem. No other illness.
+Doctor: Any allergies to medicines?
+Patient: No.
+Doctor: Throat is mildly red. Chest is clear. This looks like viral fever. I am prescribing Paracetamol 500mg three times a day after food for 3 days and Cetirizine 10mg once a day at night for 3 days. Drink plenty of water and take rest. Come back if fever lasts more than 3 days.
+Patient: Ok doctor.
