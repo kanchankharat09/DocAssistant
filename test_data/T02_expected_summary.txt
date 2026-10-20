@@ -1,0 +1,16 @@
+Patient: Neha Joshi, 32F
+Date: 15 Oct 2026
+Visit type: First visit
+
+Chief complaint: Sore throat and pain on swallowing for 3 days, with fever
+Duration: 3 days
+Associated symptoms: No cough
+Past history: No other illness
+Allergies: None
+Impression: Bacterial tonsillitis
+
+Medicines prescribed:
+- Amoxicilen 500mg — three times a day after food — 5 days
+- Paracetamol 500mg — three times a day if fever — 3 days
+
+Doctor instructions: Gargle with warm salt water. Return if no improvement in 3 days.

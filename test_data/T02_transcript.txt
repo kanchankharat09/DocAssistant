@@ -1,0 +1,14 @@
+Patient: Neha Joshi, 32F
+Date: 15 Oct 2026
+Type: First visit
+
+Doctor: Hello Neha. What is the problem?
+Patient: Doctor, I have severe sore throat and pain while swallowing since 3 days. Fever also.
+Doctor: Any cough or cold?
+Patient: No cough. Only throat pain and fever.
+Doctor: Any allergies to medicines?
+Patient: No allergies.
+Doctor: Any other illness?
+Patient: No, nothing.
+Doctor: Throat is red and tonsils are swollen with white patches. This is bacterial tonsillitis. I am prescribing Amoxicilen 500mg three times a day after food for 5 days and Paracetamol 500mg three times a day if fever, for 3 days. Gargle with warm salt water. Come back if no improvement in 3 days.
+Patient: Ok doctor.
