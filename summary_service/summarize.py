@@ -59,7 +59,6 @@ for file_name in files:
             {"role": "user", "content": transcript},
         ],
     )
-    # check: if this line gives a JSON error, print the raw answer to see what the AI sent
     # print(answer.choices[0].message.content)
     summary = json.loads(answer.choices[0].message.content)
 

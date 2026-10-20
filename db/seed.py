@@ -59,14 +59,12 @@ for file_name in files:
             in_medicines = False
 
     # split "Ramesh Kulkarni, 58M" into name, age and sex
-    # check: this only works if the line has exactly one comma
     name_part, age_sex = patient_line.split(",")
     age_sex = age_sex.strip()
     age = int(age_sex[:-1])
     sex = age_sex[-1]
 
     # old visit is 21 days before the transcript date
-    # check: date_line looks like "14 Oct 2026". If this line gives an error, the format is different.
     transcript_date = datetime.strptime(date_line, "%d %b %Y")
     # option b (use this if the month is written in full, like "14 October 2026"):
     # transcript_date = datetime.strptime(date_line, "%d %B %Y")
@@ -83,8 +81,7 @@ for file_name in files:
 
 con.commit()
 
-# check: patients should be same as the number of expected summary files in test_data
-# (run  python3 test_data/check_counts.py  to compare)
+
 patients_count = con.execute("SELECT COUNT(*) FROM patients").fetchone()[0]
 visits_count = con.execute("SELECT COUNT(*) FROM visits").fetchone()[0]
 print("patients:", patients_count, " visits:", visits_count)
