@@ -10,8 +10,11 @@ Files in this project
 1. test_data/check_counts.py     (S1)  counts the test files
 2. db/seed.py                    (S2)  makes the database with fake patients
 3. summary_service/summarize.py  (S3)  asks Groq AI to make summaries
+4. summary_service/compare_runs.py (S3) checks that two runs give the same medicines
+5. summary_service/score_t1.py   (S4)  scores the AI summaries (the T1 test)
+6. summary_service/list_models.py      shows which Groq models your key can use
 
-All three are written the simple way: straight from top to bottom, no
+All of them are written the simple way: straight from top to bottom, no
 functions, no classes. You read it like a list of steps.
 
 
@@ -212,6 +215,80 @@ Step by step
 What this file does NOT do yet
   It does not compare the AI summary with the expected summary. That is S4
   (the scoring script).
+
+
+4. summary_service/compare_runs.py   (S3 repeat test)
+=====================================================
+What it does
+  Compares two runs of summarize.py and checks that the medicine names and
+  doses are the same in both. The S3 pass bar says: the second run must give
+  the same medicines and doses on at least 18 of 20 transcripts.
+
+How to run (Windows PowerShell)
+  $env:RUN_NAME="run1"; python summary_service/summarize.py
+  $env:RUN_NAME="run2"; python summary_service/summarize.py
+  python summary_service/compare_runs.py
+
+Step by step
+  Step 1. The two runs are saved in results/summaries/run1 and run2.
+  Step 2. For each json file in run1, read the same file from run2.
+  Step 3. medicine_list() turns the medicines into a sorted list of
+          (name, dose) pairs in small letters. Sorting and small letters
+          mean "Paracetamol 500mg" and "paracetamol 500mg" count as same.
+  Step 4. If the two lists are equal, print "same", else print "DIFFERENT"
+          and show both lists.
+  Step 5. At the end print how many were the same and PASS or FAIL.
+
+Note
+  This function is the only place in the project where a def is used,
+  because the same steps are needed twice (once for each run).
+
+
+5. summary_service/score_t1.py   (S4 and S5)
+============================================
+What it does
+  Scores test T1. For each transcript it checks that the AI summary has
+  every medicine name and dose of the expected summary. It counts how many
+  transcripts pass (the pass bar is 18 of 20).
+  Only medicine name and dose are checked by the script. Symptoms,
+  duration, history and frequency still have to be read by hand.
+
+How to run
+  python summary_service/score_t1.py run1         score the run called run1
+  python summary_service/score_t1.py selftest     test the scorer itself
+
+Step by step
+  Step 1. read_expected_medicines() reads the "- Paracetamol 500mg - ..."
+          lines of an expected summary and splits each into a name
+          (words before the first number) and a dose (from the first
+          number on). Both are made small letters.
+  Step 2. case_passes() looks at each expected medicine and searches the AI
+          list for the same name and the same dose. If one is not found,
+          the transcript fails.
+  Step 3. score_folder() does this for all 20 files and counts passes.
+  Step 4. The selftest makes a perfect copy from the expected summaries
+          (must score 20 of 20), then removes one dose (must score 19 of
+          20). This proves the scorer itself works. S4 asks for exactly this.
+  Step 5. After a normal run, one line is added to
+          results/results_sheet.csv with time, run name, model, prompt file
+          and score. This is the S5 results sheet.
+  Step 6. The Friday gate: if the score is below 14 of 20, it prints a
+          message that Monday goes to prompt and schema work.
+
+Why the expected summary is used here
+  Only the scorer uses it, to give marks. The real app never sees it.
+  This is what Hitesh asked for.
+
+
+6. summary_service/list_models.py
+=================================
+What it does
+  Prints the names of the Groq models your key can use. Run it when
+  summarize.py says a model does not exist.
+
+How to run
+  python summary_service/list_models.py
+  Then copy one name into model_name in summarize.py, or set GROQ_MODEL.
 
 
 Common errors and what they mean

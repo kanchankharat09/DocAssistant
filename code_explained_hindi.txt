@@ -1,0 +1,269 @@
+कोड की आसान हिंदी (बच्चे को समझाने जैसी)
+=========================================
+
+यह फ़ाइल code_explained.txt का हिंदी रूप है। उसमें वही बातें अंग्रेज़ी में हैं।
+यहाँ हर चीज़ ऐसे समझाई है जैसे किसी बच्चे को बता रहे हों।
+इसे पढ़ते समय कोड भी साथ में खोलकर रखिए।
+
+
+हमारा प्रोजेक्ट क्या है?
+-------------------------
+डॉक्टर और मरीज़ की बातचीत (transcript) लिखी हुई है। हम एक AI से कहते हैं कि
+इसका छोटा सा summary बना दो: मरीज़ को क्या तकलीफ़ है, कितने दिन से है, और
+डॉक्टर ने कौन सी दवा कितनी मात्रा (dose) में दी। फिर हम जाँचते हैं कि AI ने
+कोई गलती तो नहीं की।
+
+इस प्रोजेक्ट में 6 कोड फ़ाइलें हैं:
+
+1. test_data/check_counts.py       (S1)  फ़ाइलें गिनती है
+2. db/seed.py                      (S2)  नकली मरीज़ों वाला database बनाती है
+3. summary_service/summarize.py    (S3)  AI से summary बनवाती है
+4. summary_service/compare_runs.py (S3)  दो बार चलाने पर नतीजा वही आया या नहीं
+5. summary_service/score_t1.py     (S4)  AI को नंबर देती है (T1 test)
+6. summary_service/list_models.py        बताती है कौन से AI model चल सकते हैं
+
+सारा कोड सीधा ऊपर से नीचे चलता है, जैसे कोई recipe की लिस्ट।
+
+
+कुछ बुनियादी बातें
+-------------------
+- variable: एक नाम जिसमें हम कोई चीज़ रखते हैं, जैसे डिब्बे पर नाम लिखना।
+  उदाहरण: folder = "test_data"  (डिब्बे का नाम folder, अंदर test_data)
+- list: एक डिब्बे में कई चीज़ें। उदाहरण: ids = ["T01", "T02"]
+- for loop: लिस्ट की हर चीज़ के लिए वही काम बार बार करना।
+- if: कोई शर्त सच हो तभी कोई काम करना।
+- open(file).read(): पूरी text फ़ाइल को एक बड़े लिखे हुए टुकड़े में पढ़ लेना।
+- comment: # से शुरू होने वाली लाइन। Python इसे पढ़ता ही नहीं। यह बस हमारे
+  समझने के लिए नोट है।
+- main folder से चलाना: सारे रास्ते (paths) DocAssistant वाले main folder से
+  शुरू होते हैं, इसलिए कमांड हमेशा वहीं से चलाइए।
+
+
+1. test_data/check_counts.py   (S1)
+===================================
+यह क्या करती है
+  गिनती है कि कितने transcripts और expected summaries तैयार हैं, और बताती है
+  कि कौन सी अभी नहीं बनीं। S1 की शर्त यही है।
+
+कैसे चलाएँ
+  python test_data/check_counts.py
+
+कदम दर कदम
+  कदम 1. MANIFEST.csv पढ़ती है। यह एक छोटी तालिका (table) है, हर लाइन एक केस:
+          id,language,planted_error,status
+          T04,en,dose,done
+  कदम 2. हर लाइन देखकर 3 लिस्ट भरती है:
+          all_ids    : सारे केस (T01 से T20)
+          code_mixed : जिनकी भाषा हिंदी-अंग्रेज़ी मिली है
+          planted    : जिनमें जानबूझकर गलती डाली है
+  कदम 3. folder के अंदर देखती है कि कौन सी फ़ाइल सच में मौजूद है।
+          name[:3] का मतलब है नाम के पहले 3 अक्षर,
+          यानी "T04_transcript.txt" से "T04" बनता है।
+  कदम 4. मिलान करती है। जिस id की फ़ाइल नहीं मिली, वह "missing" में जाती है।
+  कदम 5. नतीजा print कर देती है।
+
+सब ठीक होने पर यह दिखना चाहिए
+  transcripts: 20 / 20    expected summaries: 20 / 20
+  code-mixed (planned): 5 / 5    planted errors (planned): 10 / 10
+  missing transcript: []
+  missing summary: []
+
+ध्यान रखिए
+  code-mixed और planted की गिनती MANIFEST.csv से आती है, transcript पढ़कर नहीं।
+  इसलिए MANIFEST और फ़ाइलें आपस में मेल खाती रहनी चाहिए।
+
+
+2. db/seed.py   (S2)
+====================
+यह क्या करती है
+  clinic.db नाम की एक छोटी database फ़ाइल बनाती है जिसमें नकली मरीज़ हैं। हर
+  मरीज़ की एक पुरानी approved visit है। यह पुरानी visit उस मरीज़ की expected
+  summary से ली जाती है। आगे चलकर recall card यही पुरानी visit दिखाएगा।
+
+कैसे चलाएँ
+  python db/seed.py
+
+SQLite क्यों?
+  SQLite ऐसा database है जो सिर्फ़ एक फ़ाइल में रहता है। Python में पहले से
+  आता है (import sqlite3), कुछ install नहीं करना, कोई server नहीं चलाना।
+
+4 tables (जैसा plan में लिखा है)
+  patients   : patient_id, नाम, उम्र, लिंग
+  visits     : पुरानी visit (तारीख, मुख्य शिकायत, दवाइयाँ, सलाह)
+  summaries  : visit का पूरा summary text
+  audit_log  : एक डायरी, यानी समय, क्या हुआ, कौन सी visit
+
+कदम दर कदम
+  कदम 1. अगर clinic.db पहले से है तो उसे मिटा देती है (os.remove)।
+          कारण: test कहता है "खाली database पर चलाओ"। हर बार साफ़ शुरू होता है,
+          इसलिए नतीजा हर बार एक जैसा आता है।
+  कदम 2. 4 tables बनाती है (CREATE TABLE)।
+  कदम 3. "_expected_summary.txt" पर खत्म होने वाली सारी फ़ाइलें इकट्ठा करके
+          क्रम में लगाती है (T01, T02, T03...)।
+  कदम 4. हर फ़ाइल को लाइन दर लाइन पढ़ती है और ज़रूरी चीज़ें उठाती है:
+          "Patient:" से शुरू लाइन               -> नाम, उम्र, लिंग
+          "Date:" से शुरू लाइन                  -> तारीख
+          "Chief complaint:" से शुरू लाइन       -> मुख्य शिकायत
+          "Doctor instructions:" से शुरू लाइन   -> आगे की सलाह
+          "Medicines prescribed:" के बाद "- " से शुरू लाइनें -> दवाइयाँ
+          (in_medicines एक झंडा है: जब हम दवाइयों की लिस्ट के अंदर हों तब True)
+  कदम 5. "Ramesh Kulkarni, 58M" को कॉमा पर तोड़ती है। बाईं तरफ़ नाम है।
+          "58M" में संख्या उम्र है और आख़िरी अक्षर लिंग (M या F) है।
+  कदम 6. पुरानी visit की तारीख = transcript की तारीख से 21 दिन पहले।
+          कारण: database वाली visit नई वाली से पुरानी होनी चाहिए।
+  कदम 7. id बनाती है: "P" + नंबर से P01, P02... zfill(2) आगे एक शून्य लगा देता
+          है, इसलिए 1 की जगह "01" बनता है।
+  कदम 8. tables में पंक्तियाँ डालती है (INSERT)। ? निशान खाली जगह हैं, और असली
+          values अलग से दी जाती हैं। SQL में values डालने का यही सही तरीका है।
+  कदम 9. con.commit() सब कुछ सेव करता है। commit के बिना कुछ सेव नहीं होता।
+          फिर बताती है कि कितने patients और visits बने।
+
+फिर "rows with a phone number" क्या है?
+  यह जाँचती है कि किसी नाम या summary में phone number जैसी चीज़ (लगातार 7 या
+  ज़्यादा अंक) तो नहीं है। Hitesh की शर्त है कि कोई असली नाम या phone number न
+  हो। 0 आना चाहिए।
+
+सब ठीक होने पर यह दिखना चाहिए
+  patients: 20  visits: 20
+  rows with a phone number: 0
+
+सिर्फ़ नकली data क्यों?
+  प्रोजेक्ट का नियम है कि कोई असली मरीज़ data नहीं। नाम बनावटी हैं और phone
+  number का कोई column ही नहीं है।
+
+
+3. summary_service/summarize.py   (S3)
+======================================
+यह क्या करती है
+  हर transcript पढ़ती है, Groq AI को भेजती है, जवाब में JSON के रूप में summary
+  लेती है, जाँचती है कि JSON का ढाँचा सही है, और उसे
+  results/summaries/run1/T01.json जैसी फ़ाइल में सेव करती है।
+
+चलाने से पहले
+  pip install groq
+  main folder में .env नाम की फ़ाइल बनाइए, उसमें एक लाइन:  GROQ_API_KEY=आपकी_key
+  key को कभी कोड के अंदर मत लिखिए और GitHub पर मत डालिए।
+
+कैसे चलाएँ
+  python summary_service/summarize.py        सारे transcripts
+  python summary_service/summarize.py T01    सिर्फ़ T01
+
+कदम दर कदम
+  कदम 1. .env फ़ाइल से key पढ़ती है।
+  कदम 2. model_name: कौन सा AI model चलाना है। बाहर से GROQ_MODEL से बदल सकते
+          हैं। कोड में "option b" एक छोटा model है, जिसे तब आज़माएँ जब "rate
+          limit" error आए।
+  कदम 3. prompt: AI को दिए गए निर्देश, जो prompt_v1.txt फ़ाइल में रखे हैं। यह
+          कहता है: सिर्फ़ JSON दो, दवा का नाम और dose ठीक वैसे ही लिखो जैसा
+          transcript में है, और अपनी तरफ़ से कुछ मत जोड़ो।
+          कारण: AI सिर्फ़ वही बताए जो कहा गया, खुद सुधार न करे। AI चिकित्सा
+          फ़ैसले नहीं लेता।
+  कदम 4. client = Groq() Groq से जुड़ती है।
+  कदम 5. हर transcript के लिए: text पढ़ती है, temperature=0 के साथ AI को भेजती
+          है, और जवाब को Python dictionary में बदलती है (json.loads)।
+  कदम 6. ढाँचा जाँचती है (S3 test: "20 में से 20 schema पास करें")। हर text key
+          एक string हो, medicines एक list हो, और हर दवा में name, dose,
+          frequency, duration हों। कुछ कम हो तो shape_ok = False।
+  कदम 7. नतीजे की फ़ाइल सेव करती है: model का नाम, temperature 0, shape_ok और
+          summary।
+  कदम 8. हर केस की एक लाइन print करती है और आख़िर में कुल गिनती।
+
+temperature 0 क्यों?
+  Temperature बताता है कि AI कितना "मनमौजी" है। 0 का मतलब: एक ही input पर लगभग
+  हर बार एक ही output। टेस्ट दोहराने के लिए यह ज़रूरी है।
+
+यह फ़ाइल अभी क्या नहीं करती
+  यह AI की summary को expected summary से मिलाती नहीं है। वह काम
+  score_t1.py (S4) करती है।
+
+
+4. summary_service/compare_runs.py   (S3 दोहराने वाला test)
+===========================================================
+यह क्या करती है
+  summarize.py को दो बार चलाकर देखती है कि दोनों बार दवाओं के नाम और dose एक जैसे
+  आए या नहीं। S3 की शर्त: दूसरी बार कम से कम 18 transcripts पर वही दवाएँ और
+  dose आएँ।
+
+कैसे चलाएँ (Windows PowerShell)
+  $env:RUN_NAME="run1"; python summary_service/summarize.py
+  $env:RUN_NAME="run2"; python summary_service/summarize.py
+  python summary_service/compare_runs.py
+
+कदम दर कदम
+  कदम 1. दोनों runs results/summaries/run1 और run2 में सेव होते हैं।
+  कदम 2. run1 की हर json फ़ाइल के लिए run2 की वही फ़ाइल पढ़ती है।
+  कदम 3. medicine_list() दवाओं को (नाम, dose) की क्रम में लगी सूची बनाती है, सब
+          छोटे अक्षरों में। इसलिए "Paracetamol 500mg" और "paracetamol 500mg"
+          एक ही गिने जाते हैं।
+  कदम 4. दोनों सूचियाँ बराबर हों तो "same", वरना "DIFFERENT" और दोनों सूचियाँ
+          दिखाती है।
+  कदम 5. आख़िर में बताती है कितने same थे और PASS या FAIL।
+
+ध्यान दीजिए
+  इस प्रोजेक्ट में यही एक जगह def (function) है, क्योंकि यही कदम दो बार चाहिए
+  थे, हर run के लिए एक बार।
+
+
+5. summary_service/score_t1.py   (S4 और S5)
+============================================
+यह क्या करती है
+  T1 test के नंबर देती है। हर transcript के लिए जाँचती है कि AI की summary में
+  expected summary की हर दवा का नाम और dose है या नहीं। कितने transcripts पास
+  हुए, यही गिनती है (पास होने के लिए 20 में से 18 चाहिए)।
+  यह script सिर्फ़ दवा का नाम और dose जाँचती है। लक्षण, कितने दिन, पुरानी
+  बीमारी और frequency अभी हाथ से पढ़कर देखनी होंगी।
+
+कैसे चलाएँ
+  python summary_service/score_t1.py run1        run1 को नंबर दो
+  python summary_service/score_t1.py selftest    ख़ुद scorer की जाँच
+
+कदम दर कदम
+  कदम 1. read_expected_medicines() expected summary की "- Paracetamol 500mg - ..."
+          लाइनें पढ़ती है और हर लाइन को नाम (पहले अंक से पहले के शब्द) और dose
+          (पहले अंक से आगे) में तोड़ती है। दोनों छोटे अक्षरों में।
+  कदम 2. case_passes() हर expected दवा के लिए AI की सूची में वही नाम और वही dose
+          ढूँढती है। एक भी न मिली तो वह transcript फ़ेल।
+  कदम 3. score_folder() यही सब 20 फ़ाइलों के लिए करके पास गिनती है।
+  कदम 4. selftest: expected summaries से एक सही copy बनाती है (20/20 आना चाहिए),
+          फिर एक dose हटा देती है (19/20 आना चाहिए)। इससे साबित होता है कि
+          scorer ख़ुद ठीक चल रहा है। S4 यही माँगता है।
+  कदम 5. सामान्य run के बाद results/results_sheet.csv में एक लाइन जुड़ती है:
+          समय, run का नाम, model, prompt फ़ाइल और score। यह S5 की results sheet है।
+  कदम 6. शुक्रवार का gate: score 14/20 से कम हो तो संदेश छापती है कि सोमवार का
+          दिन prompt और schema के काम में जाएगा।
+
+expected summary यहाँ क्यों इस्तेमाल होती है?
+  सिर्फ़ scorer इसे नंबर देने के लिए देखता है। असली app इसे कभी नहीं देखता।
+  Hitesh ने यही कहा है।
+
+
+6. summary_service/list_models.py
+=================================
+यह क्या करती है
+  उन Groq models के नाम छापती है जो आपकी key से चल सकते हैं। जब summarize.py
+  कहे कि model नहीं मिला, तब इसे चलाइए।
+
+कैसे चलाएँ
+  python summary_service/list_models.py
+  फिर कोई एक नाम summarize.py के model_name में या GROQ_MODEL में डाल दीजिए।
+
+
+आम errors और उनका मतलब
+-----------------------
+- FileNotFoundError    : आप main folder में नहीं हैं। DocAssistant में cd कीजिए।
+- ModuleNotFoundError: groq : pip install groq चलाइए।
+- Authentication / 401 : key गलत है या डली ही नहीं।
+- Rate limit error     : बहुत जल्दी जल्दी बहुत calls। थोड़ा रुकिए, या option b
+                         (छोटा model) लगाइए।
+- seed.py में ValueError : किसी summary फ़ाइल में "Patient:" या "Date:" का
+                         format अलग है। वह फ़ाइल खोलकर देखिए।
+- summarize.py में JSON error : AI का कच्चा जवाब print करके देखिए कि क्या आया।
+
+
+कोड इतना सीधा क्यों है?
+-----------------------
+- ऊपर से नीचे recipe की तरह पढ़ा जा सकता है।
+- कोई कदम फ़ेल हो तो उससे पहले की value print करके गलती ढूँढ सकते हैं।
+- कुछ भी function के अंदर छिपा नहीं है, इसलिए एक कदम बदलना आसान है।
+- जब आप सहज हो जाएँ, तब बार बार आने वाले हिस्सों को functions में डाल सकते
+  हैं। यह ज़रूरी नहीं है।
