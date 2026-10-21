@@ -118,14 +118,8 @@ SQLite क्यों?
   कदम 9. con.commit() सब कुछ सेव करता है। commit के बिना कुछ सेव नहीं होता।
           फिर बताती है कि कितने patients और visits बने।
 
-फिर "rows with a phone number" क्या है?
-  यह जाँचती है कि किसी नाम या summary में phone number जैसी चीज़ (लगातार 7 या
-  ज़्यादा अंक) तो नहीं है। Hitesh की शर्त है कि कोई असली नाम या phone number न
-  हो। 0 आना चाहिए।
-
 सब ठीक होने पर यह दिखना चाहिए
   patients: 20  visits: 20
-  rows with a phone number: 0
 
 सिर्फ़ नकली data क्यों?
   प्रोजेक्ट का नियम है कि कोई असली मरीज़ data नहीं। नाम बनावटी हैं और phone

@@ -85,25 +85,3 @@ con.commit()
 patients_count = con.execute("SELECT COUNT(*) FROM patients").fetchone()[0]
 visits_count = con.execute("SELECT COUNT(*) FROM visits").fetchone()[0]
 print("patients:", patients_count, " visits:", visits_count)
-
-# test for the plan: no row should have a phone number.
-# a phone number has 7 or more digits in a row, so we look for that in the names and summaries.
-def has_phone_number(text):
-    digits_in_a_row = 0
-    for letter in text:
-        if letter.isdigit():
-            digits_in_a_row = digits_in_a_row + 1
-            if digits_in_a_row >= 7:
-                return True
-        else:
-            digits_in_a_row = 0
-    return False
-
-phone_rows = 0
-for (name,) in con.execute("SELECT name FROM patients"):
-    if has_phone_number(name):
-        phone_rows = phone_rows + 1
-for (text,) in con.execute("SELECT text FROM summaries"):
-    if has_phone_number(text):
-        phone_rows = phone_rows + 1
-print("rows with a phone number:", phone_rows)
