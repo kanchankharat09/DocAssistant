@@ -141,9 +141,6 @@ else:
     sheet_file.close()
     print("written in", sheet)
 
-    # the Friday gate from the plan
-    if total == 20 and passed < 14:
-        print("GATE: below 14 of 20. Next Monday goes to prompt and schema work, not new features.")
     if total == 20:
         if passed >= 18:
             print("T1: PASS (needs at least 18 of 20)")

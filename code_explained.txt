@@ -272,8 +272,8 @@ Step by step
   Step 5. After a normal run, one line is added to
           results/results_sheet.csv with time, run name, model, prompt file
           and score. This is the S5 results sheet.
-  Step 6. The Friday gate: if the score is below 14 of 20, it prints a
-          message that Monday goes to prompt and schema work.
+  Step 6. It prints T1: PASS if the score is 18 or more, else T1: FAIL.
+          (The Friday gate of the plan, below 14 of 20, is checked by hand.)
 
 Why the expected summary is used here
   Only the scorer uses it, to give marks. The real app never sees it.
