@@ -17,6 +17,14 @@ from datetime import datetime
 test_data_folder = "test_data"
 
 
+def clean_dose(text):
+    # makes small letters, removes spaces, and writes units the same way (75 micrograms and 75mcg become the same)
+    text = text.lower().replace(" ", "")
+    text = text.replace("micrograms", "mcg").replace("microgram", "mcg")
+    text = text.replace("milligrams", "mg").replace("milligram", "mg")
+    return text
+
+
 def read_expected_medicines(file_name):
     # reads the lines like "- Paracetamol 500mg — three times a day after food — 3 days"
     # returns a list of (name, dose) pairs in small letters, like ("paracetamol", "500mg")
@@ -38,7 +46,7 @@ def read_expected_medicines(file_name):
                     dose_words.append(word)
                 else:
                     name_words.append(word)
-            medicines.append((" ".join(name_words).lower(), "".join(dose_words).lower()))
+            medicines.append((" ".join(name_words).lower(), clean_dose("".join(dose_words))))
         else:
             in_medicines = False
     return medicines
@@ -50,7 +58,7 @@ def case_passes(expected_medicines, ai_medicines):
         found = False
         for ai in ai_medicines:
             ai_name = ai["name"].lower().strip()
-            ai_dose = ai["dose"].lower().replace(" ", "")
+            ai_dose = clean_dose(ai["dose"])
             if expected_name.split(" ")[0] in ai_name and expected_dose == ai_dose:
                 found = True
         if not found:

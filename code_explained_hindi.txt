@@ -248,6 +248,30 @@ expected summary यहाँ क्यों इस्तेमाल होत
   फिर कोई एक नाम summarize.py के model_name में या GROQ_MODEL में डाल दीजिए।
 
 
+S5 के बदलाव (पहला prompt सुधार, run3)
+=====================================
+क्यों: पहले T1 run (run1, prompt_v1) में 7/20 आया। 13 फ़ेल में से 10 जानबूझकर
+डाली गई गलतियाँ हैं (AI ने निर्देश के मुताबिक गलत value कॉपी की, वह T2 यानी
+checker का काम है), और 3 ठीक हो सकते थे:
+  T07  ORS solution छूट गई
+  T11  metformin ("पहले जैसी चलेगी") छूट गई, और नाम में dose जुड़ गई
+       ("Diclofenac 50mg")
+  T12  "75 micrograms" को "75mcg" नहीं माना गया
+
+हमने क्या बदला
+  1. summary_service/prompt_v2.txt  (नई फ़ाइल, v1 को छुआ नहीं)
+     - "name" में सिर्फ़ दवा का नाम, dose अलग "dose" में
+     - हर दवा लिखो, चालू रखी गई दवा और बिना dose वाली दवा भी
+  2. score_t1.py में नया function clean_dose()। यह छोटे अक्षर करता है, जगह
+     हटाता है और units को एक जैसा लिखता है (micrograms = mcg, milligrams = mg)।
+     यह expected और AI दोनों की dose पर चलता है।
+
+कैसे चलाएँ
+  $env:PROMPT_FILE="summary_service/prompt_v2.txt"; $env:RUN_NAME="run3"; python summary_service/summarize.py
+  python summary_service/score_t1.py run3
+  फिर results/results_sheet.csv में run1 और run3 का T1 score मिलाइए
+
+
 आम errors और उनका मतलब
 -----------------------
 - FileNotFoundError    : आप main folder में नहीं हैं। DocAssistant में cd कीजिए।

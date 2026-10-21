@@ -291,6 +291,30 @@ How to run
   Then copy one name into model_name in summarize.py, or set GROQ_MODEL.
 
 
+S5 changes (first prompt fix, run3)
+===================================
+Why: the first T1 run (run1, prompt_v1) scored 7 of 20. Of the 13 fails, 10 are
+the planted errors (the AI copied the wrong value as told, so they belong to T2,
+the checker), and 3 were fixable:
+  T07  ORS solution was left out
+  T11  metformin ("continue as before") was left out, and the dose was written
+       inside the name ("Diclofenac 50mg")
+  T12  "75 micrograms" was not accepted as "75mcg"
+
+What we changed
+  1. summary_service/prompt_v2.txt  (new, v1 is not touched)
+     - put only the medicine name in "name", the dose in "dose"
+     - list every medicine, also continued ones and ones without a dose
+  2. score_t1.py: new function clean_dose(). It makes small letters, removes
+     spaces and writes units the same way (micrograms = mcg, milligrams = mg).
+     It is used on both sides, the expected dose and the AI dose.
+
+How to run
+  $env:PROMPT_FILE="summary_service/prompt_v2.txt"; $env:RUN_NAME="run3"; python summary_service/summarize.py
+  python summary_service/score_t1.py run3
+  then compare the T1 score of run1 and run3 in results/results_sheet.csv
+
+
 Common errors and what they mean
 --------------------------------
 - FileNotFoundError: you are not in the main folder. cd into DocAssistant.
