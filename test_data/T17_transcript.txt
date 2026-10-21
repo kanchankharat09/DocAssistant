@@ -1,0 +1,14 @@
+Patient: Sanjay More, 60M
+Date: 15 Oct 2026
+Type: First visit
+
+Doctor: Hello Sanjay. What is the problem?
+Patient: Doctor, I have knee pain on both sides since 1 month. Pain is more when I climb stairs.
+Doctor: Any swelling or injury?
+Patient: No injury. Slight swelling sometimes.
+Doctor: Any allergies to medicines?
+Patient: No allergies.
+Doctor: Any other illness?
+Patient: No, nothing.
+Doctor: This is osteoarthritis of the knees. I am prescribing Diclofenac 500mg twice a day after food for 5 days. Apply warm compress. Avoid climbing stairs when possible. Come back after 5 days.
+Patient: Ok doctor.

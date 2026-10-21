@@ -1,0 +1,15 @@
+Patient: Meena Pawar, 29F
+Date: 15 Oct 2026
+Visit type: First visit
+
+Chief complaint: Burning in the chest and sour taste in the mouth for 1 week, mostly after meals
+Duration: 1 week
+Associated symptoms: No vomiting, no black stools
+Past history: No other illness
+Allergies: None
+Impression: Acidity, gastritis
+
+Medicines prescribed:
+- Pantoprazole 40mg — once a day before breakfast — 14 days
+
+Doctor instructions: Avoid spicy and oily food. Do not lie down right after meals. Return if no improvement in 2 weeks.

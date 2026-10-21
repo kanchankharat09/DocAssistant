@@ -1,0 +1,15 @@
+Patient: Rajesh Kale, 52M
+Date: 15 Oct 2026
+Visit type: First visit
+
+Chief complaint: Fever and body pain for 2 days, with headache
+Duration: 2 days
+Associated symptoms: Headache. No cough, cold or loose motions.
+Past history: No other illness
+Allergies: None
+Impression: Viral fever
+
+Medicines prescribed:
+- Paracetamol 500mg — three times a day after food — 3 days
+
+Doctor instructions: Drink plenty of water and take rest. Return if fever continues after 3 days.

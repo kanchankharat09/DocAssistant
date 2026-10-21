@@ -1,0 +1,14 @@
+Patient: Anita Bhosale, 38F
+Date: 15 Oct 2026
+Type: First visit
+
+Doctor: Hello Anita. What is the problem?
+Patient: Doctor, I have burning while passing urine and I pass urine again and again since 2 days.
+Doctor: Any fever or back pain?
+Patient: No fever. No back pain.
+Doctor: Any allergies to medicines?
+Patient: No allergies.
+Doctor: Any other illness?
+Patient: No, nothing.
+Doctor: This is a urinary tract infection. I am prescribing Nitrofurantoyn 100mg twice a day after food for 5 days. Drink plenty of water. Come back if no improvement in 3 days.
+Patient: Ok doctor.

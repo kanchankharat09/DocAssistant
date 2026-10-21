@@ -1,0 +1,14 @@
+Patient: Vikram Shinde, 45M
+Date: 15 Oct 2026
+Type: First visit
+
+Doctor: Hello Vikram. What is the problem?
+Patient: Doctor, I have cough with yellow phlegm and fever since 4 days.
+Doctor: Any breathlessness or chest pain?
+Patient: No breathlessness. No chest pain.
+Doctor: Any allergies to medicines?
+Patient: No allergies.
+Doctor: Any other illness?
+Patient: No, nothing.
+Doctor: Chest has crackles on the right side. This is a chest infection. I am prescribing Azithromicin 500mg once a day after food for 3 days and Paracetamol 500mg three times a day if fever, for 3 days. Drink warm water. Come back if no improvement in 3 days.
+Patient: Ok doctor.

@@ -1,0 +1,14 @@
+Patient: Pooja Gaikwad, 27F
+Date: 15 Oct 2026
+Type: First visit
+
+Doctor: Hello Pooja. What is the problem?
+Patient: Doctor, I have severe headache on one side with nausea since morning. Light hurts my eyes.
+Doctor: Any vomiting or fever?
+Patient: One time vomiting. No fever.
+Doctor: Any allergies to medicines?
+Patient: No allergies.
+Doctor: Any other illness?
+Patient: No, I get this sometimes.
+Doctor: This is a migraine. I am prescribing Sumatriptin 50mg once at the start of headache, repeat after 2 hours if needed, for 2 days. Rest in a dark, quiet room. Come back if headache continues beyond 2 days.
+Patient: Ok doctor.

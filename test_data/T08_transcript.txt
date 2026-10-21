@@ -1,0 +1,14 @@
+Patient: Rajesh Kale, 52M
+Date: 15 Oct 2026
+Type: First visit
+
+Doctor: Hello Rajesh. What is the problem?
+Patient: Doctor, I have fever and body pain since 2 days. Headache also.
+Doctor: Any cough, cold or loose motions?
+Patient: No, only fever and body pain.
+Doctor: Any allergies to medicines?
+Patient: No allergies.
+Doctor: Any other illness?
+Patient: No, nothing.
+Doctor: This is a viral fever. I am prescribing Paracetamol 5000mg three times a day after food for 3 days. Drink plenty of water and take rest. Come back if fever continues after 3 days.
+Patient: Ok doctor.

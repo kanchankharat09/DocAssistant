@@ -1,0 +1,15 @@
+Patient: Sunita Deshmukh, 41F
+Date: 15 Oct 2026
+Visit type: First visit
+
+Chief complaint: Sneezing, runny nose and itchy eyes for 4 days
+Duration: 4 days
+Associated symptoms: No fever, no cough. Worse in the morning.
+Past history: No other illness
+Allergies: None
+Impression: Allergic rhinitis
+
+Medicines prescribed:
+- Cetirizine 10mg — once a day at night — 7 days
+
+Doctor instructions: Avoid dust and cold drinks. Return if no improvement in 7 days.

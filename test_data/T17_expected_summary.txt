@@ -1,0 +1,15 @@
+Patient: Sanjay More, 60M
+Date: 15 Oct 2026
+Visit type: First visit
+
+Chief complaint: Pain in both knees for 1 month, worse on climbing stairs
+Duration: 1 month
+Associated symptoms: Occasional slight swelling. No injury.
+Past history: No other illness
+Allergies: None
+Impression: Osteoarthritis of the knees
+
+Medicines prescribed:
+- Diclofenac 50mg — twice a day after food — 5 days
+
+Doctor instructions: Apply warm compress. Avoid climbing stairs when possible. Return after 5 days.

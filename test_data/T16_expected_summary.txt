@@ -1,0 +1,15 @@
+Patient: Anita Bhosale, 38F
+Date: 15 Oct 2026
+Visit type: First visit
+
+Chief complaint: Burning while passing urine with increased frequency for 2 days
+Duration: 2 days
+Associated symptoms: No fever, no back pain
+Past history: No other illness
+Allergies: None
+Impression: Urinary tract infection
+
+Medicines prescribed:
+- Nitrofurantoin 100mg — twice a day after food — 5 days
+
+Doctor instructions: Drink plenty of water. Return if no improvement in 3 days.

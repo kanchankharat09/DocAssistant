@@ -1,0 +1,15 @@
+Patient: Kiran Jadhav, 48M
+Date: 15 Oct 2026
+Visit type: First visit
+
+Chief complaint: Tiredness and increased thirst for 2 weeks, high sugar at a camp
+Duration: 2 weeks
+Associated symptoms: No weight loss, no blurry vision. Fasting sugar 180.
+Past history: No other illness
+Allergies: None
+Impression: Type 2 diabetes
+
+Medicines prescribed:
+- Metformin 500mg — twice a day after food — 30 days
+
+Doctor instructions: Reduce sweets and rice. Walk daily for 30 minutes. Return with fasting sugar report after 30 days.

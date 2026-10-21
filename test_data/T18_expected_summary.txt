@@ -1,0 +1,15 @@
+Patient: Pooja Gaikwad, 27F
+Date: 15 Oct 2026
+Visit type: First visit
+
+Chief complaint: Severe one-sided headache with nausea since morning, light sensitivity
+Duration: Since morning
+Associated symptoms: Nausea, one episode of vomiting. No fever.
+Past history: Similar headaches occasionally
+Allergies: None
+Impression: Migraine
+
+Medicines prescribed:
+- Sumatriptan 50mg — once at start of headache, repeat after 2 hours if needed — 2 days
+
+Doctor instructions: Rest in a dark, quiet room. Return if headache continues beyond 2 days.

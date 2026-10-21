@@ -1,0 +1,14 @@
+Patient: Kiran Jadhav, 48M
+Date: 15 Oct 2026
+Type: First visit
+
+Doctor: Hello Kiran. What is the problem?
+Patient: Doctor, my sugar was high in the camp. I feel tired and thirsty since 2 weeks.
+Doctor: Any weight loss or blurry vision?
+Patient: No weight loss. No blurry vision.
+Doctor: Any allergies to medicines?
+Patient: No allergies.
+Doctor: Any other illness?
+Patient: No, nothing.
+Doctor: Fasting sugar is 180. This is type 2 diabetes. I am prescribing Metformin 5000mg twice a day after food for 30 days. Reduce sweets and rice. Walk daily for 30 minutes. Come back with fasting sugar report after 30 days.
+Patient: Ok doctor.

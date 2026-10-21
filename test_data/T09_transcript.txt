@@ -1,0 +1,14 @@
+Patient: Meena Pawar, 29F
+Date: 15 Oct 2026
+Type: First visit
+
+Doctor: Hello Meena. What is the problem?
+Patient: Doctor, I have burning in the chest and sour taste in the mouth since 1 week, mostly after meals.
+Doctor: Any vomiting or black stools?
+Patient: No vomiting. No black stools.
+Doctor: Any allergies to medicines?
+Patient: No allergies.
+Doctor: Any other illness?
+Patient: No, nothing.
+Doctor: This is acidity, gastritis. I am prescribing Pantoprazole 400mg once a day before breakfast for 14 days. Avoid spicy and oily food. Do not lie down right after meals. Come back if no improvement in 2 weeks.
+Patient: Ok doctor.
