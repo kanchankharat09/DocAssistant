@@ -121,62 +121,67 @@ def score_folder(folder):
     return passed, total
 
 
-if len(sys.argv) > 1 and sys.argv[1] == "selftest":
-    # make a perfect folder from the expected summaries
-    perfect_folder = "results/selftest/perfect"
-    broken_folder = "results/selftest/broken"
-    os.makedirs(perfect_folder, exist_ok=True)
-    os.makedirs(broken_folder, exist_ok=True)
-    first_case = True
-    for name in sorted(os.listdir(test_data_folder)):
-        if not name.endswith("_expected_summary.txt"):
-            continue
-        medicines = []
-        for medicine_name, dose in read_case_medicines(name[:3]):
-            medicines.append({"name": medicine_name, "dose": dose})
-        perfect = {"summary": {"medicines": medicines}}
-        open(perfect_folder + "/" + name[:3] + ".json", "w").write(json.dumps(perfect))
-        if first_case and len(medicines) > 0:
-            medicines = [{"name": medicines[0]["name"], "dose": ""}] + medicines[1:]   # one dose removed
-            first_case = False
-        broken = {"summary": {"medicines": medicines}}
-        open(broken_folder + "/" + name[:3] + ".json", "w").write(json.dumps(broken))
-    print("--- perfect copy ---")
-    p1, t1 = score_folder(perfect_folder)
-    print("--- copy with one dose removed ---")
-    p2, t2 = score_folder(broken_folder)
-    print("perfect:", p1, "of", t1, "  broken:", p2, "of", t2)
-else:
-    run_name = "run1"
-    if len(sys.argv) > 1:
-        run_name = sys.argv[1]
-    passed, total = score_folder("results/summaries/" + run_name)
-    print("T1 score:", passed, "of", total)
-
-    # write this score in the results sheet (S5). it keeps the model and the prompt of the run.
-    model_used = ""
-    prompt_used = ""
-    first_json = "results/summaries/" + run_name
-    for name in sorted(os.listdir(first_json)):
-        if name.endswith(".json"):
-            info = json.loads(open(first_json + "/" + name, encoding="utf-8").read())
-            model_used = info.get("model", "")
-            prompt_used = info.get("prompt_file", "")
-            break
-    sheet = "results/results_sheet.csv"
-    is_new = not os.path.exists(sheet)
-    sheet_file = open(sheet, "a", newline="", encoding="utf-8")
-    writer = csv.writer(sheet_file)
-    if is_new:
-        writer.writerow(["time", "run", "model", "prompt_file", "passed", "total"])
-    writer.writerow([datetime.now().isoformat(timespec="seconds"), run_name, model_used, prompt_used, passed, total])
-    sheet_file.close()
-    print("written in", sheet)
-
-    if total == 20:
-        if passed >= 18:
-            print("T1: PASS (needs at least 18 of 20)")
-        else:
-            print("T1: FAIL (needs at least 18 of 20)")
+def main():
+    if len(sys.argv) > 1 and sys.argv[1] == "selftest":
+        # make a perfect folder from the expected summaries
+        perfect_folder = "results/selftest/perfect"
+        broken_folder = "results/selftest/broken"
+        os.makedirs(perfect_folder, exist_ok=True)
+        os.makedirs(broken_folder, exist_ok=True)
+        first_case = True
+        for name in sorted(os.listdir(test_data_folder)):
+            if not name.endswith("_expected_summary.txt"):
+                continue
+            medicines = []
+            for medicine_name, dose in read_case_medicines(name[:3]):
+                medicines.append({"name": medicine_name, "dose": dose})
+            perfect = {"summary": {"medicines": medicines}}
+            open(perfect_folder + "/" + name[:3] + ".json", "w").write(json.dumps(perfect))
+            if first_case and len(medicines) > 0:
+                medicines = [{"name": medicines[0]["name"], "dose": ""}] + medicines[1:]   # one dose removed
+                first_case = False
+            broken = {"summary": {"medicines": medicines}}
+            open(broken_folder + "/" + name[:3] + ".json", "w").write(json.dumps(broken))
+        print("--- perfect copy ---")
+        p1, t1 = score_folder(perfect_folder)
+        print("--- copy with one dose removed ---")
+        p2, t2 = score_folder(broken_folder)
+        print("perfect:", p1, "of", t1, "  broken:", p2, "of", t2)
     else:
-        print("only", total, "transcripts so far, the pass bar needs all 20")
+        run_name = "run1"
+        if len(sys.argv) > 1:
+            run_name = sys.argv[1]
+        passed, total = score_folder("results/summaries/" + run_name)
+        print("T1 score:", passed, "of", total)
+
+        # write this score in the results sheet (S5). it keeps the model and the prompt of the run.
+        model_used = ""
+        prompt_used = ""
+        first_json = "results/summaries/" + run_name
+        for name in sorted(os.listdir(first_json)):
+            if name.endswith(".json"):
+                info = json.loads(open(first_json + "/" + name, encoding="utf-8").read())
+                model_used = info.get("model", "")
+                prompt_used = info.get("prompt_file", "")
+                break
+        sheet = "results/results_sheet.csv"
+        is_new = not os.path.exists(sheet)
+        sheet_file = open(sheet, "a", newline="", encoding="utf-8")
+        writer = csv.writer(sheet_file)
+        if is_new:
+            writer.writerow(["time", "run", "model", "prompt_file", "passed", "total"])
+        writer.writerow([datetime.now().isoformat(timespec="seconds"), run_name, model_used, prompt_used, passed, total])
+        sheet_file.close()
+        print("written in", sheet)
+
+        if total == 20:
+            if passed >= 18:
+                print("T1: PASS (needs at least 18 of 20)")
+            else:
+                print("T1: FAIL (needs at least 18 of 20)")
+        else:
+            print("only", total, "transcripts so far, the pass bar needs all 20")
+
+
+if __name__ == "__main__":
+    main()
