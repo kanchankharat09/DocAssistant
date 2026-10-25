@@ -8,6 +8,7 @@ Write only the medicine name in "name". Never put the dose in "name". Put the do
 Write the dose with its unit as short as in the transcript, for example 500mg or 75mcg.
 List EVERY medicine the doctor mentions for this visit, also medicines the patient already takes and the doctor says to continue,
 and also medicines without a dose, like ORS solution. For a medicine without a dose, write "" in "dose".
-Write every field in English. If the transcript is in Hindi or Hindi-English, translate the words, for example "din mein ek baar subah" becomes "once a day in the morning" and "7 din" becomes "7 days". Keep the medicine names as the doctor said them.
-In associated_symptoms, also write the symptoms the patient says they do not have (for example "no vomiting") and what the doctor finds on examination.
-In past_history, write the illnesses the patient has, and also the ones the patient says they do not have (for example "no BP, no sugar"). Use "" only if it is not said at all.
+Write every field in English. If the transcript is in Hindi or Hindi-English, translate the words, for example "raat ko do baar" becomes "twice at night" and "10 din" becomes "10 days". Keep the medicine names as the doctor said them.
+In associated_symptoms, also write the symptoms the patient says they do not have (for example "no dizziness") and what the doctor finds on examination.
+In past_history, write the illnesses the patient has, and also the ones the patient says they do not have (for example "no asthma, no kidney problem"). Use "" only if it is not said at all.
+Do not list a medicine that the doctor tells the patient to stop, or one that the patient is allergic to.
