@@ -1,34 +1,34 @@
-name,usual_doses
-paracetamol,325mg|500mg|650mg|1000mg
-amoxicillin,250mg|500mg|875mg
-azithromycin,250mg|500mg
-amlodipine,2.5mg|5mg|10mg
-cetirizine,5mg|10mg
-levocetirizine,5mg
-diclofenac,25mg|50mg|75mg|100mg
-pantoprazole,20mg|40mg
-omeprazole,20mg|40mg
-metformin,500mg|850mg|1000mg
-nitrofurantoin,50mg|100mg
-sumatriptan,25mg|50mg|100mg
-racecadotril,10mg|30mg|100mg
-naproxen,250mg|500mg
-levothyroxine,25mcg|50mcg|75mcg|100mcg|125mcg
-fluconazole,50mg|100mg|150mg|200mg
-domperidone,10mg
-ibuprofen,200mg|400mg|600mg
-aspirin,75mg|150mg|325mg
-atorvastatin,10mg|20mg|40mg|80mg
-losartan,25mg|50mg|100mg
-telmisartan,20mg|40mg|80mg
-montelukast,4mg|5mg|10mg
-ondansetron,4mg|8mg
-metronidazole,200mg|400mg|500mg
-ciprofloxacin,250mg|500mg|750mg
-doxycycline,100mg
-cefixime,100mg|200mg|400mg
-ranitidine,150mg|300mg
-glimepiride,1mg|2mg|3mg|4mg
-clotrimazole cream,
-calamine lotion,
-ors solution,
+name,usual_doses,source
+paracetamol,325mg|500mg|650mg|1000mg,"checked 25 Oct 2026 by web search: Drugs.com, GoodRx/SingleCare (325, 500 mg; 650 mg ER; 1000 mg is the max single dose); not an official label"
+amoxicillin,250mg|500mg|875mg,"checked 25 Oct 2026 by web search: Healthline, Epocrates (capsules 250, 500; tablets 500, 875)"
+azithromycin,250mg|500mg,"checked 25 Oct 2026 by web search: Pfizer Zithromax label, FDA label"
+amlodipine,2.5mg|5mg|10mg,"checked 25 Oct 2026 by web search: Healthline, Lupin US label"
+cetirizine,5mg|10mg,"checked 25 Oct 2026 by web search: RxList, Drugs.com, Epocrates"
+levocetirizine,5mg,"checked 25 Oct 2026 by web search: UK SmPC, HPRA, Singapore labels"
+diclofenac,25mg|50mg|75mg|100mg,"checked 25 Oct 2026 by web search: Drugs.com (DR 25, 50, 75 mg; ER 100 mg)"
+pantoprazole,20mg|40mg,"checked 25 Oct 2026 by web search: Drugs.com, UK SmPC, Torrent outsert"
+metformin,500mg|750mg|850mg|1000mg,"checked 25 Oct 2026 by web search: Healthline, Drugs.com (IR 500, 850, 1000; ER 500, 750, 1000)"
+nitrofurantoin,25mg|50mg|100mg,"checked 25 Oct 2026 by web search: Drugs.com, Mayo Clinic, UK SmPC"
+sumatriptan,25mg|50mg|100mg,"checked 25 Oct 2026 by web search: Drugs.com prescribing info"
+racecadotril,10mg|100mg,"100 mg adult capsule checked 25 Oct 2026 by web search (EU product information); 10 mg is an Indian listing, probably child form, not confirmed; 30 mg removed (no source)"
+naproxen,250mg|375mg|500mg,"checked 25 Oct 2026 by web search: Drugs.com, UK SmPC"
+levothyroxine,12.5mcg|25mcg|50mcg|75mcg|88mcg|100mcg|112mcg|125mcg|137mcg|150mcg|175mcg|200mcg|300mcg,"checked 25 Oct 2026 by web search: US generic labels, Levoxyl; 12.5 mcg is in some non-US markets"
+fluconazole,50mg|100mg|150mg|200mg,"checked 25 Oct 2026 by web search: RxList, Drugs.com"
+domperidone,10mg,"checked 25 Oct 2026 by web search: NHS, Dutch SmPC, Singapore listing"
+omeprazole,20mg|40mg,own list - NOT verified
+ibuprofen,200mg|400mg|600mg,own list - NOT verified
+aspirin,75mg|150mg|325mg,own list - NOT verified
+atorvastatin,10mg|20mg|40mg|80mg,own list - NOT verified
+losartan,25mg|50mg|100mg,own list - NOT verified
+telmisartan,20mg|40mg|80mg,own list - NOT verified
+montelukast,4mg|5mg|10mg,own list - NOT verified
+ondansetron,4mg|8mg,own list - NOT verified
+metronidazole,200mg|400mg|500mg,own list - NOT verified
+ciprofloxacin,250mg|500mg|750mg,own list - NOT verified
+doxycycline,100mg,own list - NOT verified
+cefixime,100mg|200mg|400mg,own list - NOT verified
+ranitidine,150mg|300mg,own list - NOT verified
+glimepiride,1mg|2mg|3mg|4mg,own list - NOT verified
+clotrimazole cream,,own list - NOT verified (no dose)
+calamine lotion,,own list - NOT verified (no dose)
+ors solution,,own list - NOT verified (no dose)
