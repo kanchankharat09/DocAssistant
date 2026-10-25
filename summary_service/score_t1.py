@@ -129,6 +129,7 @@ frequency_words = ["once", "twice", "three", "four", "morning", "evening", "nigh
 def frequency_key_words(text):
     text = text.lower()
     text = text.replace("thrice", "three").replace("daily", "once").replace("two times", "twice")
+    text = text.replace("each", "every")
     keys = []
     for word in frequency_words:
         if word in text:
@@ -157,9 +158,13 @@ skip_words = ["with", "that", "this", "from", "have", "been", "also", "than", "w
               "days", "weeks", "months", "week", "month"]   # the days are checked in "duration", not here
 
 
+same_meaning = {"sugar": "diabetes", "bp": "hypertension"}
+
+
 def important_words(text):
     words = []
     for word in text.lower().replace(",", " ").replace(".", " ").replace("-", " ").split(" "):
+        word = same_meaning.get(word, word)
         if len(word) >= 4 and word not in skip_words and not word.isdigit():
             words.append(word)
     return words
@@ -172,7 +177,7 @@ def words_are_there(expected_text, ai_text):
         return True
     found = 0
     for word in wanted:
-        if word[:5] in ai_text.lower():
+        if word[:5] in " ".join(important_words(ai_text)):
             found = found + 1
     return found * 10 >= len(wanted) * 6
 
