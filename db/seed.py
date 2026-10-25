@@ -32,7 +32,8 @@ files.sort()
 number = 0
 for file_name in files:
     number = number + 1
-    text = open(test_data_folder + "/" + file_name).read()
+    # utf-8 is needed because the files have the long dash "—"; without it Windows shows "â€”"
+    text = open(test_data_folder + "/" + file_name, encoding="utf-8").read()
 
     # read the lines we need from the summary
     patient_line = ""
