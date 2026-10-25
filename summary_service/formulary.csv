@@ -9,26 +9,26 @@ diclofenac,25mg|50mg|75mg|100mg,"checked 25 Oct 2026 by web search: Drugs.com (D
 pantoprazole,20mg|40mg,"checked 25 Oct 2026 by web search: Drugs.com, UK SmPC, Torrent outsert"
 metformin,500mg|750mg|850mg|1000mg,"checked 25 Oct 2026 by web search: Healthline, Drugs.com (IR 500, 850, 1000; ER 500, 750, 1000)"
 nitrofurantoin,25mg|50mg|100mg,"checked 25 Oct 2026 by web search: Drugs.com, Mayo Clinic, UK SmPC"
-sumatriptan,25mg|50mg|100mg,"checked 25 Oct 2026 by web search: Drugs.com prescribing info"
+sumatriptan,25mg|50mg|100mg,checked 25 Oct 2026 by web search: Drugs.com prescribing info
 racecadotril,10mg|100mg,"100 mg adult capsule checked 25 Oct 2026 by web search (EU product information); 10 mg is an Indian listing, probably child form, not confirmed; 30 mg removed (no source)"
 naproxen,250mg|375mg|500mg,"checked 25 Oct 2026 by web search: Drugs.com, UK SmPC"
 levothyroxine,12.5mcg|25mcg|50mcg|75mcg|88mcg|100mcg|112mcg|125mcg|137mcg|150mcg|175mcg|200mcg|300mcg,"checked 25 Oct 2026 by web search: US generic labels, Levoxyl; 12.5 mcg is in some non-US markets"
 fluconazole,50mg|100mg|150mg|200mg,"checked 25 Oct 2026 by web search: RxList, Drugs.com"
 domperidone,10mg,"checked 25 Oct 2026 by web search: NHS, Dutch SmPC, Singapore listing"
-omeprazole,20mg|40mg,own list - NOT verified
-ibuprofen,200mg|400mg|600mg,own list - NOT verified
-aspirin,75mg|150mg|325mg,own list - NOT verified
-atorvastatin,10mg|20mg|40mg|80mg,own list - NOT verified
-losartan,25mg|50mg|100mg,own list - NOT verified
-telmisartan,20mg|40mg|80mg,own list - NOT verified
-montelukast,4mg|5mg|10mg,own list - NOT verified
-ondansetron,4mg|8mg,own list - NOT verified
-metronidazole,200mg|400mg|500mg,own list - NOT verified
-ciprofloxacin,250mg|500mg|750mg,own list - NOT verified
-doxycycline,100mg,own list - NOT verified
-cefixime,100mg|200mg|400mg,own list - NOT verified
-ranitidine,150mg|300mg,own list - NOT verified
-glimepiride,1mg|2mg|3mg|4mg,own list - NOT verified
-clotrimazole cream,,own list - NOT verified (no dose)
-calamine lotion,,own list - NOT verified (no dose)
-ors solution,,own list - NOT verified (no dose)
+omeprazole,10mg|20mg|40mg,"checked 25 Oct 2026 by web search: Drugs.com, MSF guidelines (capsules 10, 20, 40 mg)"
+ibuprofen,200mg|400mg|600mg|800mg,"checked 25 Oct 2026 by web search: prescription labels (400, 600, 800 mg), OTC tablets 200 mg"
+aspirin,75mg|81mg|325mg|500mg|650mg,"checked 25 Oct 2026 by web search: Epocrates (325, 500 IR; 81, 325, 500, 650 DR); 75 mg is common outside the US but was not confirmed in the search"
+atorvastatin,10mg|20mg|40mg|80mg,"checked 25 Oct 2026 by web search: Teva, Viatris, Apotex labels"
+losartan,25mg|50mg|100mg,"checked 25 Oct 2026 by web search: UK SmPC, manufacturer listings (12.5 mg exists in some markets)"
+telmisartan,20mg|40mg|80mg,"checked 25 Oct 2026 by web search: UK SmPC, Mylan, US labels"
+montelukast,4mg|5mg|10mg,"checked 25 Oct 2026 by web search: SAHPRA label, Macter (4, 5 mg chewable; 10 mg tablet)"
+ondansetron,4mg|8mg|16mg|24mg,"checked 25 Oct 2026 by web search: Healthline, Medical News Today; 16 and 24 mg depend on the maker"
+metronidazole,200mg|250mg|400mg|500mg,"checked 25 Oct 2026 by web search: RxList, MSF guidelines (250, 500 common; 200, 400 in a monograph)"
+ciprofloxacin,250mg|500mg|750mg,"checked 25 Oct 2026 by web search: Healthline, GoodRx, Drugs.com (a 100 mg tablet appears in one source)"
+doxycycline,20mg|50mg|75mg|100mg|150mg,"checked 25 Oct 2026 by web search: Healthline, Epocrates, Medical News Today"
+cefixime,100mg|200mg|400mg,"checked 25 Oct 2026 by web search: wikEM, MSF guidelines (400 mg tablet; 100, 200 mg chewable or 200 mg tablet)"
+ranitidine,150mg|300mg,"checked 25 Oct 2026 by web search: Drugs.com, Strides label; withdrawn from the US market in 2020, so old labels"
+glimepiride,1mg|2mg|3mg|4mg,"checked 25 Oct 2026 by web search: US label (1, 2, 4 mg), NHS and UK SmPC (adds 3 mg)"
+clotrimazole cream,,"cream, applied locally, so it has no tablet dose"
+calamine lotion,,"lotion, applied locally, so it has no tablet dose"
+ors solution,,"oral rehydration solution, taken as a drink, so it has no tablet dose"
