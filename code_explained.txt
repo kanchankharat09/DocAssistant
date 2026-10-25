@@ -11,11 +11,12 @@ Files in this project
 2. db/seed.py                    (S2)  makes the database with fake patients
 3. summary_service/summarize.py  (S3)  asks Groq AI to make summaries
 4. summary_service/compare_runs.py (S3) checks that two runs give the same medicines
-5. summary_service/score_t1.py   (S4)  scores the AI summaries (the T1 test)
+5. summary_service/score_t1.py   (S4, S5)  scores the AI summaries (the T1 test)
 6. summary_service/list_models.py      shows which Groq models your key can use
 
-All of them are written the simple way: straight from top to bottom, no
-functions, no classes. You read it like a list of steps.
+The first files are written the simple way: straight from top to bottom. The
+later files (score_t1.py, and S6 to S9) use small functions. A function is
+a named block of steps; it is explained in code_explained_s6_to_s9.txt.
 
 
 Some basic things used in all files
@@ -240,8 +241,305 @@ Step by step
   Step 5. At the end print how many were the same and PASS or FAIL.
 
 Note
-  This function is the only place in the project where a def is used,
-  because the same steps are needed twice (once for each run).
+  This function is used because the same steps are needed twice (once for each run).
+
+
+5. summary_service/score_t1.py   (S4 and S5)
+============================================
+What it does
+  Scores test T1. For each of the 20 transcripts it compares the AI summary
+  with the expected summary on SIX details, the ones of the plan:
+    medicine, dose, frequency, duration, symptom, history
+  A transcript passes only when all six are right. When it fails, the script
+  says what is missing, for example:
+    T12 FAIL   missing: ['frequency of levothyroxine']
+  The pass bar of T1 is 18 of 20.
+
+How to run
+  python summary_service/score_t1.py run1         score the run called run1
+  python summary_service/score_t1.py selftest     test the scorer itself
+
+The six checks, in simple words
+  medicine   every expected medicine must be in the AI list (the first word
+             of the name must match, small or capital letters do not matter)
+  dose       the dose must be the same. "75 micrograms" and "75mcg" count as
+             the same (function clean_dose).
+  frequency  the key words of "how often" must be there: once, twice, three,
+             four, morning, evening, night, bedtime, fever, needed, hours,
+             every. "daily" counts as "once", "each" counts as "every".
+  duration   the days of the illness and of each medicine must be there.
+             "2 weeks" is counted as 14 days (function days_in).
+  symptom    at least 60 percent of the important words of the expected
+             chief complaint and symptoms must be in the AI text.
+  history    the same 60 percent rule for the past history.
+             Some words mean the same: sugar = diabetes, bp = hypertension.
+  The word rules (frequency, symptom, history) are simple. If a case fails
+  there, read the AI summary yourself before you trust the fail.
+
+The 10 planted-error transcripts
+  The doctor said a wrong value (for example Amlodipine 50mg). The AI must
+  copy what was said, not fix it. So for these cases the scorer compares with
+  the "wrong_value" of test_data/MANIFEST.csv. S6 is the step that flags them.
+
+Functions of the file (what each one does)
+  clean_dose(text)               makes a dose the same way everywhere
+  read_expected_medicines(file)  name and dose of each medicine of a summary
+  read_manifest()                reads MANIFEST.csv
+  read_case_medicines(case_id)   expected name and dose, with wrong_value
+  read_expected_details(case_id) all the expected details of a case
+  frequency_key_words(text)      the key words of a frequency text
+  days_in(text)                  the numbers of days found in a text
+  important_words(text)          the words that count for symptom and history
+  words_are_there(...)           the 60 percent rule
+  what_is_missing(expected, ai)  the six checks; returns the missing details
+  score_folder(folder)           does this for all 20 files and counts passes
+  main()                         reads what you typed and runs the right thing
+
+Selftest (the test of S4)
+  It makes a perfect copy from the expected summaries (must score 20 of 20),
+  then removes one dose (must score 19 of 20). This proves the scorer works.
+
+The results sheet
+  After a normal run, one line is added to results/results_sheet.csv:
+  time, run name, model, prompt file, passed, total, prompt_change.
+  prompt_change lists the prompt lines that are not in prompt_v1, so the
+  sheet shows what was changed. This is what S5 asks for.
+
+Why the expected summary is used here
+  Only the scorer uses it, to give marks. The real app never sees it.
+  This is what Hitesh asked for.
+
+
+6. summary_service/list_models.py      shows which Groq models your key can use
+
+The first files are written the simple way: straight from top to bottom. The
+later files (score_t1.py, and S6 to S9) use small functions. A function is
+a named block of steps; it is explained in code_explained_s6_to_s9.txt.
+
+
+Some basic things used in all files
+-----------------------------------
+- Variable: a name that keeps a value. Example: folder = "test_data"
+- List: many values in one place. Example: ids = ["T01", "T02"]
+- for loop: do the same thing again for each item in a list.
+- if: do something only when a condition is true.
+- open(file).read(): read the whole text file into one big string.
+- Comment: a line starting with #. Python ignores it. It is only for us.
+- Run from the main folder: all file paths like "test_data/..." start from
+  the main DocAssistant folder, so always run the commands from there.
+
+
+1. test_data/check_counts.py   (S1)
+===================================
+What it does
+  Counts how many transcripts and expected summaries are ready, and
+  prints which ones are still missing. The plan (S1) asks for exactly this.
+
+How to run
+  python3 test_data/check_counts.py
+
+Step by step
+  Step 1. Read MANIFEST.csv.
+          This file is a small table. Each line is one case:
+              id,language,planted_error,status
+              T04,en,dose,done
+          csv.DictReader gives each line as a dictionary, so we can write
+          row["language"] instead of remembering column numbers.
+
+  Step 2. Loop over the rows and fill 3 lists:
+          all_ids    - every case id (T01 to T20)
+          code_mixed - ids where language is "code-mixed"
+          planted    - ids where planted_error is not "none"
+
+  Step 3. Look inside the folder (os.listdir) and collect the cases that
+          really have a file.
+          name[:3] means the first 3 letters of the file name, so
+          "T04_transcript.txt" becomes "T04".
+
+  Step 4. Compare. If an id is in all_ids but has no file, it goes into
+          the missing lists.
+
+  Step 5. print() the result.
+
+Why we do it like this
+  - The plan says the count script must show 20 transcripts, 20 expected
+    summaries, 5 code-mixed and 10 planted errors with their IDs.
+  - Counting by the script is faster and safer than counting by hand.
+  - Important: the "code-mixed" and "planted" numbers come from
+    MANIFEST.csv, not from reading the transcripts. If the manifest says
+    code-mixed but the transcript is English, the script will not notice.
+    So keep the manifest and the files matching.
+
+What you should see when all is done
+  transcripts: 20 / 20    expected summaries: 20 / 20
+  code-mixed (planned): 5 / 5    planted errors (planned): 10 / 10
+  missing transcript: []
+  missing summary: []
+
+
+2. db/seed.py   (S2)
+====================
+What it does
+  Makes a small database file, clinic.db, with fake patients. Each patient
+  gets one OLD approved visit. The old visit is taken from the expected
+  summary of that patient's transcript. The recall card (later story)
+  will show this old visit.
+
+How to run
+  python3 db/seed.py
+
+Why SQLite
+  SQLite is a database that lives in one file. Python already has it
+  (import sqlite3), so nothing to install and no server to start.
+
+The 4 tables (the plan names them)
+  patients   : patient_id, name, age, sex
+  visits     : the old visit (date, main complaint, medicines, advice)
+  summaries  : the full summary text of the visit
+  audit_log  : a diary - time, what happened, which visit
+
+Step by step
+  Step 1. If clinic.db already exists, delete it (os.remove).
+          Why: the plan test says "run on an EMPTY database". Deleting first
+          means every run starts clean and gives the same result.
+
+  Step 2. Create the 4 tables (CREATE TABLE).
+
+  Step 3. Collect the names of all files ending with
+          "_expected_summary.txt" and sort them, so the order is always
+          T01, T02, T03...
+
+  Step 4. For each file, read it line by line and pick what we need:
+          line starts with "Patient:"             -> name, age, sex
+          line starts with "Date:"                -> transcript date
+          line starts with "Chief complaint:"     -> main complaint
+          line starts with "Doctor instructions:" -> follow-up advice
+          lines starting with "- " after "Medicines prescribed:" -> medicines
+          (in_medicines is a flag: True while we are inside the medicine list)
+
+  Step 5. Split "Ramesh Kulkarni, 58M" at the comma.
+          Name is the left part. In "58M", the number is the age and the
+          last letter is the sex.
+          This works only if the line has exactly one comma.
+
+  Step 6. Old visit date = transcript date minus 21 days (timedelta).
+          Why: the visit in the database must be OLDER than the new
+          transcript visit.
+
+  Step 7. Make ids: "P" + number gives P01, P02... zfill(2) adds a zero in
+          front, so 1 becomes "01".
+
+  Step 8. INSERT the rows into the tables.
+          The ? signs are placeholders and the values are given separately.
+          This is the correct way to put values in SQL.
+
+  Step 9. con.commit() saves everything. Without commit nothing is saved.
+          Then print how many patients and visits were made.
+
+Why the expected summary is the old visit (option B)
+  It saves us from writing 20 extra old visits. Also the recall card and
+  the full transcript belong to the same visit, so the timing test (S10)
+  is easy to compare.
+
+Why fake data only
+  The Data and privacy part of the doc says no real patient data. Names
+  here are made up, and there is no phone number column at all.
+
+What you should see when all is done
+  patients: 20  visits: 20
+
+
+3. summary_service/summarize.py   (S3)
+======================================
+What it does
+  Reads each transcript, sends it to the Groq AI, gets a summary back as
+  JSON, checks the JSON has the right shape, and saves it in
+  results/summaries/T01.json etc.
+
+Before running
+  pip install groq
+  export GROQ_API_KEY=your_key        (on Windows: set GROQ_API_KEY=your_key)
+  Never write the key inside the code or upload it to GitHub.
+
+How to run
+  python3 summary_service/summarize.py          all transcripts
+  python3 summary_service/summarize.py T01      only T01
+
+Step by step
+  Step 1. model_name: which AI model to use. The default is written in
+          the code, and can be changed from outside with GROQ_MODEL.
+          "option b" in the comment is a smaller model to try if the first
+          one gives a rate limit error.
+
+  Step 2. prompt: the instructions we give the AI. It says:
+          - return only JSON with fixed keys,
+          - copy medicine names and doses exactly as written,
+          - do not add anything that is not in the transcript.
+          Why: the AI should only report what was said, not correct it or
+          add medical advice. The doc says the AI does not make medical
+          decisions.
+
+  Step 3. text_keys and medicine_keys: the list of keys we expect in the
+          JSON. Used later for checking.
+
+  Step 4. client = Groq() makes the connection. It reads the key from
+          GROQ_API_KEY.
+
+  Step 5. For each transcript file:
+          - read the text,
+          - send it to the AI with temperature=0,
+          - turn the answer text into a Python dictionary (json.loads).
+
+  Why temperature 0
+          Temperature is how random the AI is. 0 means the same input
+          gives (almost) the same output every time. The plan needs this
+          so a test can be repeated.
+
+  Why response_format json_object
+          It tells Groq to answer in JSON, so json.loads does not fail.
+
+  Step 6. Check the shape (this is the S3 test "20 of 20 pass the schema"):
+          every text key must be a string, medicines must be a list, and
+          each medicine must have name, dose, frequency, duration as
+          strings. If anything is missing, shape_ok becomes False.
+
+  Step 7. Save the result file with the model name, temperature 0,
+          shape_ok, and the summary.
+          Why save the model name: the plan wants us to record which model
+          was used. Groq gives only a model name, not a fixed version
+          number, so tell Hitesh this limitation.
+
+  Step 8. Print one line for each case, and a total at the end.
+
+What this file does NOT do yet
+  It does not compare the AI summary with the expected summary. That is S4
+  (the scoring script).
+
+
+4. summary_service/compare_runs.py   (S3 repeat test)
+=====================================================
+What it does
+  Compares two runs of summarize.py and checks that the medicine names and
+  doses are the same in both. The S3 pass bar says: the second run must give
+  the same medicines and doses on at least 18 of 20 transcripts.
+
+How to run (Windows PowerShell)
+  $env:RUN_NAME="run1"; python summary_service/summarize.py
+  $env:RUN_NAME="run2"; python summary_service/summarize.py
+  python summary_service/compare_runs.py
+
+Step by step
+  Step 1. The two runs are saved in results/summaries/run1 and run2.
+  Step 2. For each json file in run1, read the same file from run2.
+  Step 3. medicine_list() turns the medicines into a sorted list of
+          (name, dose) pairs in small letters. Sorting and small letters
+          mean "Paracetamol 500mg" and "paracetamol 500mg" count as same.
+  Step 4. If the two lists are equal, print "same", else print "DIFFERENT"
+          and show both lists.
+  Step 5. At the end print how many were the same and PASS or FAIL.
+
+Note
+  This function is used because the same steps are needed twice (once for each run).
 
 
 5. summary_service/score_t1.py   (S4 and S5)
@@ -291,28 +589,61 @@ How to run
   Then copy one name into model_name in summarize.py, or set GROQ_MODEL.
 
 
-S5 changes (first prompt fix, run3)
-===================================
-Why: the first T1 run (run1, prompt_v1) scored 7 of 20. Of the 13 fails, 10 are
-the planted errors (the AI copied the wrong value as told, so they belong to T2,
-the checker), and 3 were fixable:
-  T07  ORS solution was left out
-  T11  metformin ("continue as before") was left out, and the dose was written
-       inside the name ("Diclofenac 50mg")
-  T12  "75 micrograms" was not accepted as "75mcg"
+S5: the first T1 result and one prompt fix
+==========================================
+What the plan asks
+  Run T1 before and after one prompt change. Write both scores and the
+  changed prompt in the results sheet. Gate: below 14 of 20 after the fix means
+  Monday goes to prompt and schema work, not to new features.
 
-What we changed
-  1. summary_service/prompt_v2.txt  (new, v1 is not touched)
-     - put only the medicine name in "name", the dose in "dose"
-     - list every medicine, also continued ones and ones without a dose
-  2. score_t1.py: new function clean_dose(). It makes small letters, removes
-     spaces and writes units the same way (micrograms = mcg, milligrams = mg).
-     It is used on both sides, the expected dose and the AI dose.
+What we did
+  run1  prompt_v1 (the first prompt)                  T1 = 8 of 20
+  run2  prompt_v3 (v1 plus 7 new lines)               T1 = 16 of 20
+  (prompt_v2 was an earlier try. The run with prompt_v3 was named run2 so the
+  sheet reads as "before" and "after".)
+
+Why run1 failed (read from the failed summaries)
+  - In the Hindi-English transcripts (T03, T07, T11, T15, T19) the AI copied
+    Hindi words into frequency and duration ("7 din", "din mein ek baar").
+  - The AI left out what the patient said he or she does NOT have
+    ("no vomiting", "no BP, no sugar").
+  - Two medicines were left out: ORS solution (T07) and Metformin (T11).
+
+The prompt lines that were added (prompt_v3.txt)
+  - Put only the medicine name in "name" and the dose in "dose".
+  - Write the dose with its unit, short (500mg, 75mcg).
+  - List every medicine, also ones the patient already takes and ones
+    without a dose.
+  - Write every field in English; translate Hindi words.
+  - In associated_symptoms, also write the symptoms the patient does not
+    have and what the doctor finds on examination.
+  - In past_history, write the illnesses the patient has and does not have.
+  - Do not list a medicine that was stopped or that the patient is allergic to.
+  The examples inside the prompt are not taken from the test transcripts.
+
+What still fails in run2: T11 (history), T12 (frequency of levothyroxine),
+T18 (symptom, history), T19 (history).
+
+Changes of the scorer after the first runs
+  - day and week words are not counted as symptom words
+  - "each" = "every", "sugar" = "diabetes", "bp" = "hypertension"
+  These were made after seeing run2, because the AI had written the same
+  meaning in other words. Tell this to Hitesh.
+
+Gate result: 16 is above 14, so the plan continues. 16 is below 18, so T1 is
+not passed yet.
 
 How to run
-  $env:PROMPT_FILE="summary_service/prompt_v2.txt"; $env:RUN_NAME="run3"; python summary_service/summarize.py
-  python summary_service/score_t1.py run3
-  then compare the T1 score of run1 and run3 in results/results_sheet.csv
+  $env:RUN_NAME="run1"; $env:PROMPT_FILE="summary_service/prompt_v1.txt"
+  python summary_service/summarize.py
+  python summary_service/score_t1.py run1
+  $env:RUN_NAME="run2"; $env:PROMPT_FILE="summary_service/prompt_v3.txt"
+  python summary_service/summarize.py
+  python summary_service/score_t1.py run2
+  Compare the two lines in results/results_sheet.csv.
+
+The prompt is tested only on these 20 mock transcripts, so the score may be
+lower on new ones.
 
 
 Common errors and what they mean
