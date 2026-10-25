@@ -153,7 +153,8 @@ def days_in(text):
 
 
 skip_words = ["with", "that", "this", "from", "have", "been", "also", "than", "which", "there",
-              "since", "after", "before", "none", "other", "illness", "history", "complaint", "mild", "past"]
+              "since", "after", "before", "none", "other", "illness", "history", "complaint", "mild", "past",
+              "days", "weeks", "months", "week", "month"]   # the days are checked in "duration", not here
 
 
 def important_words(text):
