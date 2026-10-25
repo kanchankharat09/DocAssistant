@@ -1,5 +1,5 @@
-# S7 screen: shows the AI summary and its flags. Approve is blocked until every flag is
-# fixed or dismissed. (Saving the visit comes in S8.)
+# S7 and S8 screen: shows the AI summary and its flags. Approve is blocked until every flag
+# is fixed or dismissed. Approve saves the visit (S8) and every action goes in the audit log.
 #
 # Run:  streamlit run app/app.py     and open "Review" in the left menu.
 
@@ -9,7 +9,8 @@ import sys
 import streamlit as st
 
 sys.path.insert(0, "app")
-from review import fix_medicine, load_summary, open_flags, try_approve
+from review import fix_medicine, load_summary, open_flags
+from save import approve_and_save, leave_unapproved
 
 st.title("Review the summary")
 st.caption("Fictional patients only.")
@@ -63,11 +64,17 @@ for flag in waiting:
         dismissed.append(flag["key"])
         st.rerun()
 
-# Approve
+# Approve (S8: saves the visit) or leave the summary unapproved (nothing is saved)
 st.subheader("Approve")
-if st.button("Approve"):
-    allowed, text = try_approve(summary, dismissed)
+if not os.path.exists("clinic.db"):
+    st.error("clinic.db was not found. Run  python3 db/seed.py  first.")
+    st.stop()
+if st.button("Approve and save"):
+    allowed, text = approve_and_save(case_id, summary, dismissed)
     if allowed:
-        st.success(text + " (Saving comes in S8.)")
+        st.success(text)
     else:
         st.error(text)
+if st.button("Leave unapproved"):
+    leave_unapproved(case_id)
+    st.info("Left unapproved. Nothing was saved.")
