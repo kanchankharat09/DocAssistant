@@ -164,13 +164,30 @@ def main():
                 model_used = info.get("model", "")
                 prompt_used = info.get("prompt_file", "")
                 break
+        # what the prompt changed compared with prompt_v1 (the lines that v1 does not have)
+        prompt_change = ""
+        if prompt_used != "" and os.path.exists(prompt_used):
+            v1_lines = open("summary_service/prompt_v1.txt", encoding="utf-8").read().split("\n")
+            changed_lines = []
+            for line in open(prompt_used, encoding="utf-8").read().split("\n"):
+                if line.strip() != "" and line not in v1_lines:
+                    changed_lines.append(line.strip())
+            prompt_change = " ".join(changed_lines)
+        if prompt_change == "":
+            prompt_change = "same as prompt_v1"
         sheet = "results/results_sheet.csv"
-        is_new = not os.path.exists(sheet)
-        sheet_file = open(sheet, "a", newline="", encoding="utf-8")
+        header = ["time", "run", "model", "prompt_file", "passed", "total", "prompt_change"]
+        old_rows = []
+        if os.path.exists(sheet):
+            old_rows = list(csv.reader(open(sheet, newline="", encoding="utf-8")))
+        sheet_file = open(sheet, "w", newline="", encoding="utf-8")
         writer = csv.writer(sheet_file)
-        if is_new:
-            writer.writerow(["time", "run", "model", "prompt_file", "passed", "total"])
-        writer.writerow([datetime.now().isoformat(timespec="seconds"), run_name, model_used, prompt_used, passed, total])
+        writer.writerow(header)
+        for row in old_rows[1:]:
+            while len(row) < len(header):
+                row.append("")
+            writer.writerow(row)
+        writer.writerow([datetime.now().isoformat(timespec="seconds"), run_name, model_used, prompt_used, passed, total, prompt_change])
         sheet_file.close()
         print("written in", sheet)
 
