@@ -1,0 +1,227 @@
+कोड की आसान हिंदी: S6 से S9
+==========================
+
+यह फ़ाइल code_explained_s6_to_s9.txt का हिंदी रूप है।
+यहाँ S6, S7, S8 और S9 का नया कोड आसान शब्दों में समझाया है: हमने यह क्यों
+लिखा, यह क्या करता है, और फ़ाइलें आपस में कैसे जुड़ती हैं।
+इसे पढ़ते समय कोड भी साथ में खोलकर रखिए। (S1 से S5 code_explained.txt और
+code_explained_hindi.txt में हैं।)
+
+
+इस कोड में कुछ नई चीज़ें (पहले यह पढ़िए)
+-----------------------------------------
+1. Function: कुछ steps का एक नाम वाला छोटा टुकड़ा, जिसे बार-बार इस्तेमाल कर
+   सकते हैं।
+   उदाहरण:
+       def clean_dose(text):          <- "def" से function शुरू होता है, "text" वो है जो हम देते हैं
+           return text.lower()        <- "return" वो है जो वह लौटाता है
+   इस्तेमाल:  clean_dose("500 MG")   लौटाता है   "500 mg"
+   क्यों: कई जगह वही steps चाहिए। Function से हम उन्हें एक बार लिखते हैं, ऐसे
+   नाम के साथ जो काम बता दे।
+
+2. import: किसी दूसरी फ़ाइल का कोड इस्तेमाल करना।
+   उदाहरण: from review import try_approve
+   मतलब: review.py फ़ाइल से function try_approve ले लो।
+   क्यों: ताकि हर फ़ाइल एक ही काम करे और बाकी उसे दोबारा इस्तेमाल करें।
+
+3. Dictionary: "नाम: value" जोड़ों की सूची।
+   उदाहरण: card = {"visit_date": "2026-09-24", "main_complaint": "Fever"}
+   card["visit_date"] देता है "2026-09-24"।
+   क्यों: एक card में कई बातें होती हैं और हम हर एक को उसके नाम से लेना चाहते हैं।
+
+4. SQL और sqlite3: database से कुछ पूछने की भाषा।
+   उदाहरण: SELECT name FROM patients WHERE patient_id = 'P01'
+   मतलब: मुझे patient P01 का नाम दो।
+   हमारे कोड में "?" की जगह कोई value भरी जाती है, ताकि सवाल सुरक्षित रहे।
+   हमारा database फ़ाइल clinic.db है (db/seed.py बनाती है)।
+
+5. Streamlit: एक Python औज़ार जो Python फ़ाइल से web page बना देता है।
+   st.text_input(...) text box बनाता है, st.button(...) button बनाता है,
+   st.write(...) text दिखाता है। हर click पर Streamlit फ़ाइल को ऊपर से फिर चलाता
+   है। st.session_state उन runs के बीच values को याद रखता है।
+
+6. JSON: AI summaries का text रूप (results/summaries/run2/T01.json)।
+   json.loads(text) उसे dictionary बना देता है जो Python में इस्तेमाल हो सके।
+
+
+S6: दवा और dose की जाँच
+=======================
+क्यों
+  गलत दवा का नाम या गलत dose इस tool का सबसे बड़ा ख़तरा है। Checker डॉक्टर को
+  approve करने से पहले दिखाता है "यहाँ देखिए"। Hitesh ने कहा था कि checker
+  expected summary इस्तेमाल नहीं करेगा, क्योंकि असली app में वो फ़ाइल होती ही
+  नहीं। इसलिए वह एक reference list इस्तेमाल करता है।
+
+फ़ाइलें
+  summary_service/formulary.csv       reference list (नीचे देखिए)
+  summary_service/check_medicines.py  checker
+
+formulary.csv
+  हर दवा की एक line: उसका नाम, उसकी आम doses, और source।
+  उदाहरण:   amlodipine,2.5mg|5mg|10mg,"checked ... by web search: ..."
+  "|" doses को अलग करता है। List को public दवा labels और sites से मिलाया गया है।
+  किसी डॉक्टर या pharmacist ने इसे अभी नहीं देखा है।
+  ORS solution जैसी दवा की dose नहीं होती, इसलिए उसकी dose list खाली है।
+
+check_medicines.py (functions क्या करते हैं)
+  read_formulary()        list को dictionary में पढ़ता है:
+                          "amlodipine" -> ["2.5mg", "5mg", "10mg"]
+  check_medicine(name, dose, formulary)
+                          अगर दवा ठीक लगे तो "" लौटाता है, वरना एक वाक्य:
+                            - नाम list में नहीं है। हम सबसे मिलता-जुलता नाम भी
+                              सुझाते हैं ("did you mean ...") difflib से, जो
+                              शब्दों की तुलना करने वाला औज़ार है।
+                            - dose आम doses में से नहीं है।
+  check_case(...)         एक summary की सारी दवाएँ जाँचता है।
+  check_folder(...)       एक run की सभी 20 summaries जाँचकर छापता है:
+                            planted errors flagged: 10 of 10
+                            clean cases wrongly flagged: 0 of 10
+                            S6: PASS
+  main()                  command के बाद आपने जो लिखा उसे पढ़ता है:
+                            run2       run2 की summaries जाँचो
+                            selftest   Groq के बिना checker की जाँच
+
+कैसे चलाएँ
+  python summary_service/check_medicines.py run2
+  python summary_service/check_medicines.py selftest
+
+यह क्या नहीं कर सकता (Hitesh को ईमानदारी से बताइए)
+  - जो दवा नाम और dose में सही है पर मरीज़ के लिए गलत है, वह नहीं पकड़ता।
+  - यह एक गोली की strength देखता है, पूरे दिन की कुल dose नहीं।
+  - MVP के लिए यह list एक demo list है।
+
+
+S9: मरीज़ ढूँढना और recall card दिखाना
+=====================================
+क्यों
+  अगली visit पर डॉक्टर को पिछली visit कुछ सेकंड में देखनी है।
+  Recall card में 4 चीज़ें हैं: visit की तारीख़, मुख्य तकलीफ़, दवाएँ dose के साथ,
+  और आगे की सलाह।
+
+फ़ाइलें
+  app/recall.py    database वाला हिस्सा (दो functions)
+  app/app.py       Streamlit page (search box और card)
+  app/test_s9.py   plan वाला test
+
+recall.py
+  find_patients(search_text)   उन मरीज़ों को लौटाता है जिनके नाम में वह text है,
+                               छोटे-बड़े अक्षर का फ़र्क़ नहीं।
+  get_recall_card(patient_id)  उस मरीज़ की आख़िरी APPROVED visit (approved = 1)
+                               का card लौटाता है, या None।
+  सिर्फ़ approved visits क्यों: plan का नियम है कि डॉक्टर के approve किए बिना
+  कुछ नहीं गिना जाता।
+
+app.py
+  एक text box दिखाता है। नाम लिखने पर find_patients चलाता है, मिले हुए मरीज़
+  दिखाता है, और जिसे आप चुनें उसका card दिखाता है।
+
+test_s9.py
+  20 मरीज़ों में से हर एक के लिए: पूरे नाम से search, card खोलना, और 4 fields
+  को expected summary फ़ाइल से मिलाना।
+  नतीजा: cards सही मरीज़ के लिए खुले 20 में से 20, fields सही 80 में से 80,
+  S9: PASS।
+  ध्यान दें: database उन्हीं expected summaries से बना है, इसलिए यह test साबित
+  करता है कि lookup ठीक चलता है, यह नहीं कि AI की summary अच्छी है (वह T1 देखता है)।
+
+कैसे चलाएँ
+  python db/seed.py                 (नया clinic.db बनाता है)
+  python app/test_s9.py
+  streamlit run app/app.py
+
+
+S7: review screen
+=================
+क्यों
+  डॉक्टर को summary और flags दिखने चाहिए, और जब तक कोई flag बाकी है, approve
+  नहीं होना चाहिए। यह plan का सुरक्षा नियम है।
+
+फ़ाइलें
+  app/review.py            logic
+  app/pages/1_Review.py    Streamlit page (बाईं तरफ़ मेनू में "Review" दिखता है)
+  app/test_s7.py           test
+
+review.py
+  load_summary(run_folder, case_id)   AI की एक summary (json) फ़ाइल पढ़ता है।
+  find_flags(summary)                 हर दवा पर S6 वाला checker चलाता है।
+  open_flags(summary, dismissed)      वो flags जो अभी संभाले नहीं गए।
+                                      Flag तब संभला माना जाता है जब डॉक्टर ने उसे
+                                      dismiss किया, या दवा ठीक कर दी ताकि checker
+                                      अब flag न करे।
+  fix_medicine(...)                   डॉक्टर के लिखे नए नाम और dose के साथ summary
+                                      की नई copy बनाता है।
+  try_approve(summary, dismissed)     flag बाकी हो तो "Blocked" कहता है, वरना
+                                      "Approved"।
+
+Page
+  Summary दिखाता है, फिर हर flag के लिए नाम का box, dose का box, Fix button और
+  Dismiss button। फिर Approve button।
+
+test_s7.py
+  हर flag वाले case के लिए तीन बातें जाँचता है:
+    शुरू में Approve रुकता है, Dismiss के बाद चलता है, Fix के बाद चलता है।
+  नतीजा: S7: PASS।
+
+कैसे चलाएँ
+  python app/test_s7.py
+  streamlit run app/app.py     फिर बाईं तरफ़ मेनू में "Review" खोलिए
+
+
+S8: approve करके save करना, और audit log
+=========================================
+क्यों
+  Plan कहता है: डॉक्टर के approve किए बिना कुछ save नहीं होगा, और हर काम audit
+  log में जाएगा (समय, काम, visit id)। Audit log इस बात का सबूत है कि किसने क्या
+  कब किया।
+
+फ़ाइलें
+  app/save.py      save करने का logic
+  app/test_s8.py   plan वाला test
+
+save.py
+  approve_and_save(case_id, summary, dismissed)
+      1. try_approve (S7) से पूछता है। अगर रुका: audit log में "approve blocked"
+         लिखता है और रुक जाता है। कुछ save नहीं होता।
+      2. अगर visit पहले से save है: यह बताकर रुक जाता है।
+      3. वरना visit को "visits" (approved = 1) और "summaries" tables में save
+         करता है, और audit log में "approved and saved" लिखता है।
+  leave_unapproved(case_id)
+      कुछ save नहीं करता। सिर्फ़ audit log में "left unapproved" लिखता है।
+  write_audit(...)       audit log में समय के साथ एक line लिखता है।
+  medicines_text(...)    दवाओं की list को card के लिए text lines में बदलता है।
+
+test_s8.py
+  20 में से पहली 15 summaries approve करता है और आख़िरी 5 छोड़ देता है। फिर जाँचता है:
+    15 save हुईं (चाहिए 15), approve न हुई summaries में से 0 save हुईं (चाहिए 0),
+    audit log में 20 में से 20 entries हैं, समय और काम के साथ (चाहिए 20)।
+  नतीजा: S8: PASS।
+
+कैसे चलाएँ
+  python db/seed.py          (हमेशा पहले, ताकि database नया हो)
+  python app/test_s8.py
+
+
+सारे हिस्से कैसे जुड़ते हैं
+---------------------------
+  AI की summary (S3, run2)
+        |
+        v
+  S6 checker  ->  flags
+        |
+        v
+  S7 review screen: डॉक्टर flags ठीक करता या dismiss करता है, फिर Approve दबाता है
+        |
+        v
+  S8 approve और save: visit save + audit log की एक line
+        |
+        v
+  S9 recall card: अगली search पर save की हुई visit दिखाता है
+
+
+किसी को समझाते समय ये बातें याद रखिए
+--------------------------------------
+1. Checker reference list इस्तेमाल करता है, expected summary नहीं।
+2. T1 अब छह बातों पर नंबर देता है: medicine, dose, frequency, duration, symptom,
+   history।
+3. T1, S6, S7, S8, S9 के tests सिर्फ़ नकली data पर चले।
+4. जो tests expected summaries इस्तेमाल करते हैं, वे साबित करते हैं कि कोड ठीक
+   चलता है। वे यह साबित नहीं करते कि tool नए data पर अच्छा है।
