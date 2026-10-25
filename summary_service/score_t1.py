@@ -1,16 +1,25 @@
-# S4: score T1 = how many AI summaries keep every medicine name and dose of the expected summary.
+# S4 and S5: score T1 = how many AI summaries keep every required detail of the expected summary.
+# The six details of the plan: medicine, dose, frequency, symptom, duration, history.
 #
 # Score one run:     python summary_service/score_t1.py run1
 # Test the scorer:   python summary_service/score_t1.py selftest
 #   (selftest makes a perfect copy from the expected summaries and scores it,
 #    then removes one dose and scores again, so the second must be one lower)
 #
+# A case passes only if all six details are right. A failed case says what was missing.
+#   medicine   every expected medicine is in the AI list (name)
+#   dose       the dose of that medicine is the same
+#   frequency  the key words of "how often" (once, twice, three, morning, night, fever ...) are there
+#   duration   the days of the illness and of each medicine are there (2 weeks = 14 days)
+#   symptom    most of the important words of chief complaint + symptoms are there
+#   history    most of the important words of past history are there
+#
 # In the 10 cases with a planted error the doctor said a wrong value (see wrong_value in
 # test_data/MANIFEST.csv). The AI passes by keeping what was said, so those cases are checked
 # against wrong_value.
 #
-# This version checks medicine name and dose only. Symptoms, duration, history
-# and frequency still have to be read by hand for now.
+# The word rules (frequency, symptom, history) are simple and only a first version. If a case
+# fails there, read it by hand before you trust the fail.
 
 import csv
 import json
@@ -84,18 +93,121 @@ def read_case_medicines(case_id):
     return changed
 
 
-def case_passes(expected_medicines, ai_medicines):
-    # every expected medicine must be found in the AI list with the same name and dose
-    for expected_name, expected_dose in expected_medicines:
-        found = False
-        for ai in ai_medicines:
-            ai_name = ai["name"].lower().strip()
-            ai_dose = clean_dose(ai["dose"])
-            if expected_name.split(" ")[0] in ai_name and expected_dose == ai_dose:
-                found = True
-        if not found:
-            return False
-    return True
+def read_expected_details(case_id):
+    # reads the expected summary of a case into a small dictionary
+    file_name = test_data_folder + "/" + case_id + "_expected_summary.txt"
+    details = {"chief_complaint": "", "duration": "", "associated_symptoms": "", "past_history": ""}
+    names = {"Chief complaint:": "chief_complaint", "Duration:": "duration",
+             "Associated symptoms:": "associated_symptoms", "Past history:": "past_history"}
+    frequencies = []
+    durations = []
+    in_medicines = False
+    for line in open(file_name, encoding="utf-8").read().split("\n"):
+        for start in names:
+            if line.startswith(start):
+                details[names[start]] = line[len(start):].strip()
+        if line.startswith("Medicines prescribed:"):
+            in_medicines = True
+        elif in_medicines and line.startswith("- "):
+            parts = line[2:].split(" — ")
+            frequencies.append(parts[1] if len(parts) > 1 else "")
+            durations.append(parts[2] if len(parts) > 2 else "")
+        else:
+            in_medicines = False
+    medicines = []
+    names_and_doses = read_case_medicines(case_id)
+    for i in range(len(names_and_doses)):
+        medicines.append({"name": names_and_doses[i][0], "dose": names_and_doses[i][1],
+                          "frequency": frequencies[i], "duration": durations[i]})
+    details["medicines"] = medicines
+    return details
+
+
+frequency_words = ["once", "twice", "three", "four", "morning", "evening", "night", "bedtime", "fever", "needed", "hours", "every"]
+
+
+def frequency_key_words(text):
+    text = text.lower()
+    text = text.replace("thrice", "three").replace("daily", "once").replace("two times", "twice")
+    keys = []
+    for word in frequency_words:
+        if word in text:
+            keys.append(word)
+    return keys
+
+
+def days_in(text):
+    # "3 days" -> 3, "2 weeks" -> 14, "1 month" -> 30. returns the list of numbers of days
+    days = []
+    words = text.lower().replace("-", " ").split(" ")
+    for i in range(len(words) - 1):
+        if words[i].isdigit():
+            unit = words[i + 1]
+            if unit.startswith("day"):
+                days.append(int(words[i]))
+            elif unit.startswith("week"):
+                days.append(int(words[i]) * 7)
+            elif unit.startswith("month"):
+                days.append(int(words[i]) * 30)
+    return days
+
+
+skip_words = ["with", "that", "this", "from", "have", "been", "also", "than", "which", "there",
+              "since", "after", "before", "none", "other", "illness", "history", "complaint", "mild", "past"]
+
+
+def important_words(text):
+    words = []
+    for word in text.lower().replace(",", " ").replace(".", " ").replace("-", " ").split(" "):
+        if len(word) >= 4 and word not in skip_words and not word.isdigit():
+            words.append(word)
+    return words
+
+
+def words_are_there(expected_text, ai_text):
+    # at least 60 percent of the important words of the expected text must be in the AI text
+    wanted = important_words(expected_text)
+    if len(wanted) == 0:
+        return True
+    found = 0
+    for word in wanted:
+        if word[:5] in ai_text.lower():
+            found = found + 1
+    return found * 10 >= len(wanted) * 6
+
+
+def what_is_missing(expected, ai):
+    # returns the list of details that are missing, [] means the case passes
+    missing = []
+    ai_medicines = ai.get("medicines", [])
+    for medicine in expected["medicines"]:
+        found = None
+        for ai_medicine in ai_medicines:
+            if medicine["name"].split(" ")[0] in ai_medicine["name"].lower().strip():
+                found = ai_medicine
+        if found is None:
+            missing.append("medicine " + medicine["name"])
+            continue
+        if clean_dose(found["dose"]) != medicine["dose"]:
+            missing.append("dose of " + medicine["name"])
+        for key in frequency_key_words(medicine["frequency"]):
+            if key not in frequency_key_words(found["frequency"]):
+                missing.append("frequency of " + medicine["name"])
+                break
+        for number in days_in(medicine["duration"]):
+            if number not in days_in(found["duration"]):
+                missing.append("duration of " + medicine["name"])
+                break
+    for number in days_in(expected["duration"]):
+        if number not in days_in(ai.get("duration", "")):
+            missing.append("duration of the illness")
+            break
+    if not words_are_there(expected["chief_complaint"] + " " + expected["associated_symptoms"],
+                           ai.get("chief_complaint", "") + " " + ai.get("associated_symptoms", "")):
+        missing.append("symptom")
+    if not words_are_there(expected["past_history"], ai.get("past_history", "")):
+        missing.append("history")
+    return missing
 
 
 def score_folder(folder):
@@ -110,14 +222,14 @@ def score_folder(folder):
             print(case_id, "no AI summary in", folder)
             continue
         total = total + 1
-        expected = read_case_medicines(case_id)
-        ai = json.loads(open(json_file, encoding="utf-8").read())["summary"]["medicines"]
-        if case_passes(expected, ai):
+        expected = read_expected_details(case_id)
+        ai = json.loads(open(json_file, encoding="utf-8").read())["summary"]
+        missing = what_is_missing(expected, ai)
+        if len(missing) == 0:
             passed = passed + 1
             print(case_id, "pass")
         else:
-            print(case_id, "FAIL   expected:", expected)
-            print("        AI gave:", [(m["name"], m["dose"]) for m in ai])
+            print(case_id, "FAIL   missing:", missing)
     return passed, total
 
 
@@ -132,15 +244,14 @@ def main():
         for name in sorted(os.listdir(test_data_folder)):
             if not name.endswith("_expected_summary.txt"):
                 continue
-            medicines = []
-            for medicine_name, dose in read_case_medicines(name[:3]):
-                medicines.append({"name": medicine_name, "dose": dose})
-            perfect = {"summary": {"medicines": medicines}}
+            details = read_expected_details(name[:3])
+            medicines = details["medicines"]
+            perfect = {"summary": details}
             open(perfect_folder + "/" + name[:3] + ".json", "w").write(json.dumps(perfect))
             if first_case and len(medicines) > 0:
-                medicines = [{"name": medicines[0]["name"], "dose": ""}] + medicines[1:]   # one dose removed
+                medicines = [dict(medicines[0], dose="")] + medicines[1:]   # one dose removed
                 first_case = False
-            broken = {"summary": {"medicines": medicines}}
+            broken = {"summary": dict(details, medicines=medicines)}
             open(broken_folder + "/" + name[:3] + ".json", "w").write(json.dumps(broken))
         print("--- perfect copy ---")
         p1, t1 = score_folder(perfect_folder)
