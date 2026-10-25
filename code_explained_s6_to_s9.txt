@@ -1,0 +1,229 @@
+CODE EXPLAINED: S6 to S9 (simple language)
+===========================================
+
+This file explains the new code of S6, S7, S8 and S9 in simple words:
+why we wrote it, what it does, and how the files work together.
+Read it with the code open next to it. (S1 to S5 are in code_explained.txt.)
+
+I wrote this file after the code, which was the wrong order. From now on the
+plan comes first: before I write any code, I put a short plan in a text file
+like this one, and you read it first.
+
+
+New things in this code (read this first)
+-----------------------------------------
+1. Function: a small named block of steps that you can use again.
+   Example:
+       def clean_dose(text):          <- "def" starts a function, "text" is what we give it
+           return text.lower()        <- "return" is what it gives back
+   Use it like this:  clean_dose("500 MG")   gives back   "500 mg"
+   Why: the same steps are needed in many places. A function lets us write
+   them once, with a name that tells what they do.
+
+2. import: use code from another file.
+   Example: from review import try_approve
+   means: take the function try_approve from the file review.py.
+   Why: so that one file does one job and the others reuse it.
+
+3. Dictionary: a list of "name: value" pairs.
+   Example: card = {"visit_date": "2026-09-24", "main_complaint": "Fever"}
+   card["visit_date"] gives "2026-09-24".
+   Why: one card has several fields and we want to reach each by its name.
+
+4. SQL and sqlite3: the language used to ask a database for data.
+   Example: SELECT name FROM patients WHERE patient_id = 'P01'
+   means: give me the name of the patient P01.
+   The "?" in our code is filled with a value, so the question is safe.
+   Our database is the file clinic.db (made by db/seed.py).
+
+5. Streamlit: a Python tool that makes a web page from a Python file.
+   st.text_input(...) makes a text box, st.button(...) makes a button,
+   st.write(...) shows text. Every time you click, Streamlit runs the file
+   again from the top. st.session_state keeps values between those runs.
+
+6. JSON: the text format of the AI summaries (results/summaries/run2/T01.json).
+   json.loads(text) turns it into a dictionary we can use in Python.
+
+
+S6: the medicine and dose checker
+=================================
+Why
+  A wrong medicine name or a wrong dose is the biggest danger of this tool.
+  The checker shows the doctor "look at this" before he or she approves.
+  Hitesh said the checker must not use the expected summary, because in the
+  real app that file does not exist. So it uses a reference list instead.
+
+Files
+  summary_service/formulary.csv       the reference list (see below)
+  summary_service/check_medicines.py  the checker
+
+formulary.csv
+  One line for each medicine: its name, its usual doses, and the source.
+  Example:   amlodipine,2.5mg|5mg|10mg,"checked ... by web search: ..."
+  The "|" separates the doses. The list is checked against public drug
+  labels and sites. It has not been reviewed by a doctor or pharmacist.
+  A medicine like ORS solution has no dose, so its dose list is empty.
+
+check_medicines.py  (what the functions do)
+  read_formulary()        reads the list into a dictionary:
+                          "amlodipine" -> ["2.5mg", "5mg", "10mg"]
+  check_medicine(name, dose, formulary)
+                          returns "" when the medicine looks fine, or a
+                          sentence when it is doubtful:
+                            - the name is not in the list. We also try to
+                              suggest the closest name ("did you mean ...")
+                              with difflib, a tool that compares words.
+                            - the dose is not one of the usual doses.
+  check_case(...)         checks all medicines of one summary.
+  check_folder(...)       checks all 20 summaries of a run and prints:
+                            planted errors flagged: 10 of 10
+                            clean cases wrongly flagged: 0 of 10
+                            S6: PASS
+  main()                  reads what you typed after the command:
+                            run2       check the summaries of run2
+                            selftest   test the checker without Groq
+
+How to run
+  python summary_service/check_medicines.py run2
+  python summary_service/check_medicines.py selftest
+
+What it cannot do (be honest about this with Hitesh)
+  - It does not catch a medicine that is correct in name and dose but wrong
+    for the patient.
+  - It checks one tablet strength, not the total dose of the day.
+  - The list is a demo list for the MVP.
+
+
+S9: search a patient and show the recall card
+=============================================
+Why
+  At the next visit the doctor wants to see the last visit in seconds.
+  The recall card shows 4 things: visit date, main complaint, medicines with
+  doses, and follow-up advice.
+
+Files
+  app/recall.py    the database part (two functions)
+  app/app.py       the Streamlit page (search box and card)
+  app/test_s9.py   the test for the plan
+
+recall.py
+  find_patients(search_text)   returns the patients whose name has the text
+                               in it, ignoring small or capital letters.
+  get_recall_card(patient_id)  returns the card of the last APPROVED visit
+                               (approved = 1) of that patient, or None.
+  Why only approved visits: the rule of the plan is that nothing counts
+  until the doctor approves.
+
+app.py
+  Shows a text box. When you type a name it calls find_patients, shows the
+  patients found, and shows the card of the one you choose.
+
+test_s9.py
+  For each of the 20 patients: search by the full name, open the card, and
+  compare the 4 fields with the expected summary file.
+  Result: cards opened 20 of 20, fields correct 80 of 80, S9: PASS.
+  Note: the database is made from the same expected summaries, so this test
+  proves that the lookup works, not that the AI summary is good (T1 does that).
+
+How to run
+  python db/seed.py                 (makes a fresh clinic.db)
+  python app/test_s9.py
+  streamlit run app/app.py
+
+
+S7: the review screen
+=====================
+Why
+  The doctor must see the summary and the flags, and must not approve while
+  a flag is waiting. This is the safety rule of the plan.
+
+Files
+  app/review.py            the logic
+  app/pages/1_Review.py    the Streamlit page (it appears as "Review")
+  app/test_s7.py           the test
+
+review.py
+  load_summary(run_folder, case_id)   reads one AI summary (json) file.
+  find_flags(summary)                 uses the S6 checker on every medicine.
+  open_flags(summary, dismissed)      the flags that are NOT handled yet.
+                                      A flag is handled when the doctor
+                                      dismissed it, or fixed the medicine
+                                      so the checker does not flag it now.
+  fix_medicine(...)                   makes a copy of the summary with the
+                                      new name and dose written by the doctor.
+  try_approve(summary, dismissed)     says "Blocked" when a flag is waiting,
+                                      or "Approved".
+
+The page
+  Shows the summary, then each flag with a text box for the name, one for
+  the dose, a Fix button and a Dismiss button. Then the Approve button.
+
+test_s7.py
+  For each case with a flag it checks three things:
+    Approve is blocked at first, works after Dismiss, works after Fix.
+  Result: S7: PASS.
+
+How to run
+  python app/test_s7.py
+  streamlit run app/app.py     then open "Review" in the left menu
+
+
+S8: approve and save, and the audit log
+=======================================
+Why
+  The plan says: nothing is saved until the doctor approves, and every action
+  goes in the audit log (time, action, visit id). The audit log is the proof
+  of who did what and when.
+
+Files
+  app/save.py      the saving logic
+  app/test_s8.py   the test for the plan
+
+save.py
+  approve_and_save(case_id, summary, dismissed)
+      1. asks try_approve (S7). If blocked: writes "approve blocked" in the
+         audit log and stops. Nothing is saved.
+      2. if the visit is already saved: says so and stops.
+      3. otherwise saves the visit in the tables "visits" (approved = 1) and
+         "summaries", and writes "approved and saved" in the audit log.
+  leave_unapproved(case_id)
+      saves nothing. Only writes "left unapproved" in the audit log.
+  write_audit(...)       writes one line in the audit log with the time.
+  medicines_text(...)    turns the medicine list into text lines for the card.
+
+test_s8.py
+  Approves the first 15 of 20 summaries and leaves the last 5. Then checks:
+    15 saved (need 15), 0 of the unapproved saved (need 0),
+    audit log has 20 of 20 entries with time and action (need 20).
+  Result: S8: PASS.
+
+How to run
+  python db/seed.py          (always first, so the database is fresh)
+  python app/test_s8.py
+
+
+How the parts fit together
+--------------------------
+  AI summary (S3, run2)
+        |
+        v
+  S6 checker  ->  flags
+        |
+        v
+  S7 review screen: doctor fixes or dismisses the flags, then presses Approve
+        |
+        v
+  S8 approve and save: visit saved + audit log line
+        |
+        v
+  S9 recall card: shows the saved visit at the next search
+
+
+Things to remember when you explain this to someone
+---------------------------------------------------
+1. The checker uses a reference list, not the expected summary.
+2. T1 is now scored on six details: medicine, dose, frequency, duration,
+   symptom, history.
+3. The tests T1, S6, S7, S8, S9 ran on mock data only.
+4. Tests that use the expected summaries prove that the code works. They do not
+   prove that the tool is good on new data.

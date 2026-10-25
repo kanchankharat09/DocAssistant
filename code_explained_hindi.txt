@@ -19,10 +19,12 @@
 2. db/seed.py                      (S2)  नकली मरीज़ों वाला database बनाती है
 3. summary_service/summarize.py    (S3)  AI से summary बनवाती है
 4. summary_service/compare_runs.py (S3)  दो बार चलाने पर नतीजा वही आया या नहीं
-5. summary_service/score_t1.py     (S4)  AI को नंबर देती है (T1 test)
+5. summary_service/score_t1.py     (S4, S5)  AI को नंबर देती है (T1 test)
 6. summary_service/list_models.py        बताती है कौन से AI model चल सकते हैं
 
-सारा कोड सीधा ऊपर से नीचे चलता है, जैसे कोई recipe की लिस्ट।
+शुरू की files सीधी ऊपर से नीचे चलती हैं, जैसे recipe की लिस्ट। बाद की files
+(score_t1.py और S6 से S9) में छोटे functions हैं। Function एक नाम वाला छोटा टुकड़ा
+है जिसे बार-बार इस्तेमाल कर सकते हैं। उसे code_explained_s6_to_s9.txt में समझाया है।
 
 
 कुछ बुनियादी बातें
@@ -201,34 +203,70 @@ temperature 0 क्यों?
 5. summary_service/score_t1.py   (S4 और S5)
 ============================================
 यह क्या करती है
-  T1 test के नंबर देती है। हर transcript के लिए जाँचती है कि AI की summary में
-  expected summary की हर दवा का नाम और dose है या नहीं। कितने transcripts पास
-  हुए, यही गिनती है (पास होने के लिए 20 में से 18 चाहिए)।
-  यह script सिर्फ़ दवा का नाम और dose जाँचती है। लक्षण, कितने दिन, पुरानी
-  बीमारी और frequency अभी हाथ से पढ़कर देखनी होंगी।
+  T1 test को नंबर देती है। 20 में से हर transcript के लिए यह AI की summary को
+  expected summary से छह बातों पर मिलाती है, जो plan में लिखी हैं:
+    medicine (दवा), dose, frequency (कितनी बार), duration (कितने दिन),
+    symptom (तकलीफ़), history (पुरानी बीमारी)
+  एक transcript तभी pass होता है जब छहों सही हों। फ़ेल होने पर यह बताती है कि
+  क्या छूटा, जैसे:
+    T12 FAIL   missing: ['frequency of levothyroxine']
+  T1 का pass bar 20 में से 18 है।
 
 कैसे चलाएँ
   python summary_service/score_t1.py run1        run1 को नंबर दो
   python summary_service/score_t1.py selftest    ख़ुद scorer की जाँच
 
-कदम दर कदम
-  कदम 1. read_expected_medicines() expected summary की "- Paracetamol 500mg - ..."
-          लाइनें पढ़ती है और हर लाइन को नाम (पहले अंक से पहले के शब्द) और dose
-          (पहले अंक से आगे) में तोड़ती है। दोनों छोटे अक्षरों में।
-  कदम 2. case_passes() हर expected दवा के लिए AI की सूची में वही नाम और वही dose
-          ढूँढती है। एक भी न मिली तो वह transcript फ़ेल।
-  कदम 3. score_folder() यही सब 20 फ़ाइलों के लिए करके पास गिनती है।
-  कदम 4. selftest: expected summaries से एक सही copy बनाती है (20/20 आना चाहिए),
-          फिर एक dose हटा देती है (19/20 आना चाहिए)। इससे साबित होता है कि
-          scorer ख़ुद ठीक चल रहा है। S4 यही माँगता है।
-  कदम 5. सामान्य run के बाद results/results_sheet.csv में एक लाइन जुड़ती है:
-          समय, run का नाम, model, prompt फ़ाइल और score। यह S5 की results sheet है।
-  कदम 6. score 18 या ज़्यादा हो तो T1: PASS छापती है, वरना T1: FAIL।
-          (plan का शुक्रवार वाला gate, यानी 14/20 से कम, हाथ से देखा जाता है।)
+छह जाँचें, आसान शब्दों में
+  medicine   expected हर दवा AI की list में होनी चाहिए (नाम का पहला शब्द
+             मिलना चाहिए; छोटे या बड़े अक्षर से फ़र्क नहीं पड़ता)
+  dose       dose वही होना चाहिए। "75 micrograms" और "75mcg" एक ही माने जाते
+             हैं (function clean_dose)।
+  frequency  "कितनी बार" के मुख्य शब्द होने चाहिए: once, twice, three, four,
+             morning, evening, night, bedtime, fever, needed, hours, every।
+             "daily" को "once" और "each" को "every" माना जाता है।
+  duration   बीमारी के दिन और हर दवा के दिन होने चाहिए। "2 weeks" को 14 दिन
+             गिना जाता है (function days_in)।
+  symptom    expected तकलीफ़ के ज़रूरी शब्दों में से कम से कम 60 प्रतिशत AI के
+             text में होने चाहिए।
+  history    पुरानी बीमारी पर भी यही 60 प्रतिशत वाला नियम। कुछ शब्द एक ही माने
+             जाते हैं: sugar = diabetes, bp = hypertension।
+  frequency, symptom और history के नियम सीधे-सादे हैं। अगर कोई case इन पर फ़ेल
+  हो, तो फ़ेल पर भरोसा करने से पहले AI की summary ख़ुद पढ़िए।
 
-expected summary यहाँ क्यों इस्तेमाल होती है?
-  सिर्फ़ scorer इसे नंबर देने के लिए देखता है। असली app इसे कभी नहीं देखता।
-  Hitesh ने यही कहा है।
+10 planted-error वाले transcripts
+  इनमें डॉक्टर ने जानबूझकर गलत value बोली है (जैसे Amlodipine 50mg)। AI को वही
+  copy करना है जो बोला गया, उसे सुधारना नहीं। इसलिए इन cases में scorer
+  test_data/MANIFEST.csv की "wrong_value" से मिलाता है। इन्हें flag करने का काम
+  S6 का है।
+
+इस file के functions (हर एक क्या करता है)
+  clean_dose(text)               dose को हर जगह एक ही तरह लिखता है
+  read_expected_medicines(file)  summary से हर दवा का नाम और dose
+  read_manifest()                MANIFEST.csv पढ़ता है
+  read_case_medicines(case_id)   wrong_value के साथ expected नाम और dose
+  read_expected_details(case_id) एक case की सारी expected बातें
+  frequency_key_words(text)      frequency वाले text के मुख्य शब्द
+  days_in(text)                  text में मिले दिनों की संख्याएँ
+  important_words(text)          symptom और history में गिने जाने वाले शब्द
+  words_are_there(...)           60 प्रतिशत वाला नियम
+  what_is_missing(expected, ai)  छहों जाँचें; जो छूटा वो लौटाता है
+  score_folder(folder)           सभी 20 files पर यह करके pass गिनता है
+  main()                         आपने जो लिखा उसे पढ़कर सही काम चलाता है
+
+Selftest (S4 का test)
+  यह expected summaries से एक पूरी तरह सही copy बनाता है (20 में से 20 आना
+  चाहिए), फिर एक dose हटा देता है (20 में से 19 आना चाहिए)। इससे साबित होता है
+  कि scorer ख़ुद ठीक चलता है।
+
+Results sheet
+  सामान्य run के बाद results/results_sheet.csv में एक line जुड़ती है:
+  समय, run का नाम, model, prompt file, passed, total, prompt_change।
+  prompt_change में वो prompt lines लिखी आती हैं जो prompt_v1 में नहीं हैं, ताकि
+  sheet में दिखे कि क्या बदला गया। S5 यही माँगता है।
+
+यहाँ expected summary क्यों इस्तेमाल होती है
+  सिर्फ़ scorer इसे नंबर देने के लिए इस्तेमाल करता है। असली app इसे कभी नहीं
+  देखता। Hitesh ने यही कहा था।
 
 
 6. summary_service/list_models.py
@@ -242,28 +280,60 @@ expected summary यहाँ क्यों इस्तेमाल होत
   फिर कोई एक नाम summarize.py के model_name में या GROQ_MODEL में डाल दीजिए।
 
 
-S5 के बदलाव (पहला prompt सुधार, run3)
-=====================================
-क्यों: पहले T1 run (run1, prompt_v1) में 7/20 आया। 13 फ़ेल में से 10 जानबूझकर
-डाली गई गलतियाँ हैं (AI ने निर्देश के मुताबिक गलत value कॉपी की, वह T2 यानी
-checker का काम है), और 3 ठीक हो सकते थे:
-  T07  ORS solution छूट गई
-  T11  metformin ("पहले जैसी चलेगी") छूट गई, और नाम में dose जुड़ गई
-       ("Diclofenac 50mg")
-  T12  "75 micrograms" को "75mcg" नहीं माना गया
+S5: पहला T1 नतीजा और एक prompt सुधार
+====================================
+Plan क्या माँगता है
+  T1 को एक prompt बदलाव से पहले और बाद में चलाओ। दोनों score और बदला हुआ prompt
+  results sheet में लिखो। Gate: सुधार के बाद 20 में से 14 से कम आए तो सोमवार नई
+  features पर नहीं, prompt और schema के काम पर जाएगा।
 
-हमने क्या बदला
-  1. summary_service/prompt_v2.txt  (नई फ़ाइल, v1 को छुआ नहीं)
-     - "name" में सिर्फ़ दवा का नाम, dose अलग "dose" में
-     - हर दवा लिखो, चालू रखी गई दवा और बिना dose वाली दवा भी
-  2. score_t1.py में नया function clean_dose()। यह छोटे अक्षर करता है, जगह
-     हटाता है और units को एक जैसा लिखता है (micrograms = mcg, milligrams = mg)।
-     यह expected और AI दोनों की dose पर चलता है।
+हमने क्या किया
+  run1  prompt_v1 (पहला prompt)                    T1 = 20 में से 8
+  run2  prompt_v3 (v1 और 7 नई lines)               T1 = 20 में से 16
+  (prompt_v2 पहले की एक कोशिश थी। prompt_v3 वाले run का नाम run2 रखा, ताकि sheet
+  में "पहले" और "बाद" साफ़ पढ़ा जाए।)
+
+run1 क्यों फ़ेल हुआ (फ़ेल हुई summaries पढ़कर)
+  - हिंदी-अंग्रेज़ी वाले transcripts (T03, T07, T11, T15, T19) में AI ने हिंदी
+    शब्द frequency और duration में copy कर दिए ("7 din", "din mein ek baar")।
+  - मरीज़ ने जो कहा कि उसे "नहीं" है, AI ने छोड़ दिया ("no vomiting",
+    "no BP, no sugar")।
+  - दो दवाएँ छूट गईं: ORS solution (T07) और Metformin (T11)।
+
+Prompt में जो lines जोड़ी गईं (prompt_v3.txt)
+  - "name" में सिर्फ़ दवा का नाम, dose "dose" में।
+  - Dose unit के साथ, छोटा लिखो (500mg, 75mcg)।
+  - हर दवा लिखो, जो मरीज़ पहले से लेता है वो भी, और जिसकी dose नहीं है वो भी।
+  - हर field अंग्रेज़ी में लिखो; हिंदी शब्दों का अनुवाद करो।
+  - associated_symptoms में वो तकलीफ़ें भी लिखो जो मरीज़ को नहीं हैं, और डॉक्टर
+    ने जाँच में क्या पाया।
+  - past_history में वो बीमारियाँ लिखो जो हैं और जो नहीं हैं।
+  - ऐसी दवा मत लिखो जो बंद करवाई गई या जिससे मरीज़ को allergy है।
+  Prompt के अंदर के examples test transcripts से नहीं लिए गए हैं।
+
+run2 में अब भी फ़ेल: T11 (history), T12 (levothyroxine की frequency),
+T18 (symptom, history), T19 (history)।
+
+पहले runs के बाद scorer में बदलाव
+  - day और week वाले शब्द symptom के शब्दों में नहीं गिने जाते
+  - "each" = "every", "sugar" = "diabetes", "bp" = "hypertension"
+  ये बदलाव run2 देखने के बाद हुए, क्योंकि AI ने वही मतलब दूसरे शब्दों में लिखा
+  था। यह बात Hitesh को बताइए।
+
+Gate का नतीजा: 16, 14 से ऊपर है, इसलिए plan चलता रहेगा। 16, 18 से नीचे है,
+इसलिए T1 अभी pass नहीं हुआ।
 
 कैसे चलाएँ
-  $env:PROMPT_FILE="summary_service/prompt_v2.txt"; $env:RUN_NAME="run3"; python summary_service/summarize.py
-  python summary_service/score_t1.py run3
-  फिर results/results_sheet.csv में run1 और run3 का T1 score मिलाइए
+  $env:RUN_NAME="run1"; $env:PROMPT_FILE="summary_service/prompt_v1.txt"
+  python summary_service/summarize.py
+  python summary_service/score_t1.py run1
+  $env:RUN_NAME="run2"; $env:PROMPT_FILE="summary_service/prompt_v3.txt"
+  python summary_service/summarize.py
+  python summary_service/score_t1.py run2
+  results/results_sheet.csv में दोनों lines की तुलना कीजिए।
+
+Prompt की जाँच सिर्फ़ इन 20 नकली transcripts पर हुई है, इसलिए नए transcripts
+पर score कम आ सकता है।
 
 
 आम errors और उनका मतलब
