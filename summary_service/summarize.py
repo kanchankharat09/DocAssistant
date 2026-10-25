@@ -8,8 +8,9 @@
 import json
 import os
 import sys
+import time
 
-from groq import Groq
+from groq import Groq, RateLimitError
 
 # read the key from the .env file if it is there
 # (the .env file has one line like:  GROQ_API_KEY=your_key )
@@ -65,15 +66,26 @@ for file_name in files:
     transcript = open(test_data_folder + "/" + file_name).read()
 
     # ask the AI (temperature 0 so the answer stays the same every time)
-    answer = client.chat.completions.create(
-        model=model_name,
-        temperature=0,
-        response_format={"type": "json_object"},
-        messages=[
-            {"role": "system", "content": prompt},
-            {"role": "user", "content": transcript},
-        ],
-    )
+    # if Groq says "rate limit" (429), wait 20 seconds and try again, up to 5 times
+    answer = None
+    for attempt in range(5):
+        try:
+            answer = client.chat.completions.create(
+                model=model_name,
+                temperature=0,
+                response_format={"type": "json_object"},
+                messages=[
+                    {"role": "system", "content": prompt},
+                    {"role": "user", "content": transcript},
+                ],
+            )
+            break
+        except RateLimitError:
+            print(case_id, "rate limit, waiting 20 seconds (try", attempt + 1, "of 5)")
+            time.sleep(20)
+    if answer is None:
+        print(case_id, "gave up after 5 tries")
+        continue
     # print(answer.choices[0].message.content)
     summary = json.loads(answer.choices[0].message.content)
 

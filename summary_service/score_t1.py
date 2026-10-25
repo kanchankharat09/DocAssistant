@@ -5,6 +5,10 @@
 #   (selftest makes a perfect copy from the expected summaries and scores it,
 #    then removes one dose and scores again, so the second must be one lower)
 #
+# In the 10 cases with a planted error the doctor said a wrong value (see wrong_value in
+# test_data/MANIFEST.csv). The AI passes by keeping what was said, so those cases are checked
+# against wrong_value.
+#
 # This version checks medicine name and dose only. Symptoms, duration, history
 # and frequency still have to be read by hand for now.
 
@@ -52,6 +56,34 @@ def read_expected_medicines(file_name):
     return medicines
 
 
+def read_manifest():
+    # reads test_data/MANIFEST.csv: for the cases with a planted error, what was said (wrong_value)
+    # and what is right (correct_value)
+    manifest = {}
+    for row in csv.DictReader(open(test_data_folder + "/MANIFEST.csv", encoding="utf-8")):
+        manifest[row["id"]] = row
+    return manifest
+
+
+def read_case_medicines(case_id):
+    # what the AI should write for this case. the AI must copy what the doctor said, so in the
+    # cases with a planted error the wrong value (not the right one) is the expected answer.
+    medicines = read_expected_medicines(test_data_folder + "/" + case_id + "_expected_summary.txt")
+    row = read_manifest().get(case_id)
+    if row is None or row["wrong_value"] == "":
+        return medicines
+    wrong = row["wrong_value"].lower()
+    correct = row["correct_value"].lower()
+    changed = []
+    for name, dose in medicines:
+        if row["planted_error"] == "dose" and dose == clean_dose(correct):
+            dose = clean_dose(wrong)
+        if row["planted_error"] == "name" and name == correct:
+            name = wrong
+        changed.append((name, dose))
+    return changed
+
+
 def case_passes(expected_medicines, ai_medicines):
     # every expected medicine must be found in the AI list with the same name and dose
     for expected_name, expected_dose in expected_medicines:
@@ -78,7 +110,7 @@ def score_folder(folder):
             print(case_id, "no AI summary in", folder)
             continue
         total = total + 1
-        expected = read_expected_medicines(test_data_folder + "/" + name)
+        expected = read_case_medicines(case_id)
         ai = json.loads(open(json_file, encoding="utf-8").read())["summary"]["medicines"]
         if case_passes(expected, ai):
             passed = passed + 1
@@ -100,7 +132,7 @@ if len(sys.argv) > 1 and sys.argv[1] == "selftest":
         if not name.endswith("_expected_summary.txt"):
             continue
         medicines = []
-        for medicine_name, dose in read_expected_medicines(test_data_folder + "/" + name):
+        for medicine_name, dose in read_case_medicines(name[:3]):
             medicines.append({"name": medicine_name, "dose": dose})
         perfect = {"summary": {"medicines": medicines}}
         open(perfect_folder + "/" + name[:3] + ".json", "w").write(json.dumps(perfect))
