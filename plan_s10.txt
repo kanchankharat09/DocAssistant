@@ -1,0 +1,115 @@
+PLAN FOR S10 (read this first, the code comes after you agree)
+=============================================================
+
+What the plan says (S10, Wed 28 Oct)
+------------------------------------
+Story:  As the builder, I want timing sessions with 3 role-playing doctors, so I
+        know if the recall card is really faster. Also run T1 to T3 on the
+        final build.
+Test:   Given 3 role-players and 20 cards, when each finds the key details of
+        the last visit, then
+          - the median time is under 15 seconds, and
+          - it is at least 2x faster than reading the full transcript, and
+          - approval takes under 30 seconds.
+
+In simple words
+---------------
+We want to know: does the recall card really save the doctor's time?
+So three people pretend to be doctors. We time how long they need to find the
+key details of a patient's last visit:
+  (a) with the recall card, and
+  (b) by reading the full transcript.
+We also time how long they need to review and approve a summary.
+The numbers go in a file. A small script then says PASS or FAIL.
+
+Who does what
+-------------
+YOU (Kanchan) run the sessions and press the stopwatch. A code cannot replace
+the 3 people. The code only helps to measure and to count.
+CODE (what I will write, after you agree):
+
+  1. app/timing.py              the logic (3 small functions)
+        record_time(...)   writes one measurement in results/timing.csv
+        read_times()       reads all measurements
+        make_report()      works out the medians, the "how many times faster",
+                           and PASS or FAIL
+  2. app/pages/2_Timing.py      a Streamlit page with a Start and a Stop button.
+                                You choose who, which patient and which task
+                                (card, transcript or approval). The page saves
+                                the seconds and asks "was the answer correct?".
+  3. app/timing_report.py       prints the report:
+                                  median recall card ....... X s (need < 15)
+                                  median transcript ........ Y s
+                                  card is Z times faster ... (need >= 2)
+                                  median approval .......... W s (need < 30)
+                                  S10: PASS or FAIL
+  4. run_tests.py               runs T1, T2 and T3 on the final build in one
+                                command and prints the three numbers:
+                                  T1  score_t1.py run2        (need 18 of 20)
+                                  T2  check_medicines.py run2 (need 10 of 10)
+                                  T3  app/test_s9.py          (need 20 of 20)
+
+How a session works (a simple script for you)
+---------------------------------------------
+Before: python db/seed.py   (fresh database), then streamlit run app/app.py.
+Each role-player gets:
+  Task A (card):       "Open the patient X. Tell me the date, main complaint,
+                        medicines with doses, and follow-up advice of the last
+                        visit." Stopwatch stops when all 4 are said.
+  Task B (transcript): the same question, but the person reads the full
+                        transcript text file of a patient. Stopwatch stops when
+                        all 4 are said.
+  Task C (approval):   "Review this summary and approve it." Stopwatch starts
+                        when the Review page is open and stops at Approve.
+After each task you mark if the answer was correct. A wrong answer is saved,
+but it is not counted in the median (it is counted in a separate "wrong" number).
+
+How to be fair (very important)
+-------------------------------
+- One person must not do Task A and Task B on the same patient: the second time
+  he or she already knows the answer. So each person gets different patients
+  for A and for B.
+- Everyone gets the same instructions, read aloud.
+- A short practice round (not counted) before the real one.
+
+My suggestion for the numbers (you can change it):
+  3 role-players x 7 patients on the card = 21 timings (plan says 20 cards)
+  3 role-players x 3 patients on the transcript = 9 timings
+  3 role-players x 2 approvals = 6 timings
+Total about 36 timings, around 30 to 45 minutes of work.
+
+Things you have to decide
+-------------------------
+1. Who are the 3 role-players? (People who are not you, ideally not the
+   one who built the tool.)
+2. When? The plan says Wed 28 Oct.
+3. Is it OK to use 3 to 7 patients per person as above?
+4. Do you want me to ask Hitesh how he wants the transcript comparison done?
+
+What this test cannot tell us (we will say it in the results note)
+------------------------------------------------------------------
+- 3 role-players are very few. The medians are a first sign, not a proof.
+- Role-players are not real doctors with real patients.
+- The patients are fictional and the cards are clean, so real clinics may be
+  slower.
+- The card shows the old visit made from the expected summary, so the card is
+  correct by construction. This test measures speed, not truth.
+
+What can fail, and what we do
+-----------------------------
+- Median card time is 15 seconds or more: look at what slows people (many
+  lines, small text, a hard to find box) and change only the screen.
+- The card is less than 2x faster: the hypothesis of the plan is wrong
+  ("we are wrong if the card is less than 2x faster"). We report it as it is.
+- Approval takes 30 seconds or more: look at the Review page, maybe too many
+  boxes before the Approve button.
+- We never change the numbers after the sessions. Plan rule: "Mark Pass/Fail
+  only after running. Never record a target as a result."
+
+Order of work
+-------------
+1. You read this file and answer the 4 questions above.
+2. I write app/timing.py, the Timing page, timing_report.py and run_tests.py.
+3. I test them with a few fake timings. You run them on your computer.
+4. You do the sessions (Wed 28 Oct), I help with the report.
+5. T1 to T3 run once on the final build with run_tests.py.
