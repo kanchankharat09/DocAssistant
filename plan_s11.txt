@@ -1,0 +1,62 @@
+PLAN FOR S11 (Thu 29 Oct): the final run of T1 to T5
+===================================================
+
+What the plan says
+------------------
+Story:  Run T4 and T5, then re-run all of T1 to T5 on the final build, so the numbers
+        are not from an old version.
+Test:   Given the final build, when I run T1 to T5 once more, each test shows Pass or
+        Fail with its number, and NOTHING is changed after this run.
+
+In simple words
+---------------
+This is the last exam. We run all five tests one time, write the five numbers, and then
+we do not touch the code or the prompt any more. The results note (S12) uses these
+numbers only.
+
+The five tests (from step.md)
+-----------------------------
+  T1  Summary accuracy        at least 18 of 20 summaries keep all six details
+  T2  Medicine-dose safety    10 of 10 planted errors flagged, and a flagged summary
+                              cannot be approved until the flag is handled
+  T3  Recall card             20 of 20 cards for the right patient, 4 of 4 fields right
+  T4  Review time             median approval time under 30 seconds (3 role-players)
+  T5  Hindi-English           at least 4 of the 5 code-mixed transcripts pass T1
+
+What I will change in the code (only run_tests.py, it is small)
+---------------------------------------------------------------
+Today run_tests.py runs T1, T2 and T3. I will add T4 and T5 and make it print one table:
+
+  T1  ... X of 20     Pass or Fail
+  T2  ... 10 of 10 flagged, 0 false flags, approve is blocked on a flag   Pass or Fail
+  T3  ... 20 of 20 cards, 80 of 80 fields                                   Pass or Fail
+  T4  ... median Y seconds with N people (need 3 people, under 30 s)       Pass, Fail or NOT MEASURED
+  T5  ... Z of 5 code-mixed pass                                           Pass or Fail
+
+How each number is found
+  T1  from score_t1.py run2 (the line "T1 score: X of 20")
+  T2  from check_medicines.py run2 (S6) and app/test_s7.py (S7 test)
+  T3  from app/test_s9.py (after a fresh db/seed.py)
+  T4  from results/timing.csv: the approval timings, correct answers only
+  T5  from the per-case lines of score_t1.py: the cases whose language is "code-mixed"
+      in test_data/MANIFEST.csv are T03, T07, T11, T15 and T19
+
+It will also:
+  - print the git commit that was tested and say if there are changes not committed
+    (so we can prove "nothing changed after this run")
+  - save the table in results/final_run.txt with the date and time
+
+Rules for the final run
+-----------------------
+  1. Commit everything first. Run it on the committed code. Do not edit anything after.
+  2. Run it once. If a number is Fail, we write Fail. We do not fix and run again.
+     (The plan allows one more try for T1 only when T1 is 16 or 17, and only BEFORE S11.)
+  3. Never write a target as a result. A test with no data says NOT MEASURED.
+  4. run_tests.py makes clinic.db new (db/seed.py) and adds one line to results_sheet.csv.
+
+Honest limits (we will write them in the note)
+----------------------------------------------
+  - Today's T1 is 16 of 20 (below 18) and T5 is 3 of 5 (below 4) in the earlier run.
+    The final run can show Fail. That is a real result.
+  - T4 needs the 3 role-play sessions of S10. Without them it says NOT MEASURED.
+  - Everything is mock data, 20 transcripts, 3 people.
