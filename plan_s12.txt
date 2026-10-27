@@ -1,0 +1,73 @@
+PLAN FOR S12 (Fri 30 Oct): the results note and the review with Hitesh
+=====================================================================
+
+What the plan says
+------------------
+Story:  As the founder, I want a short results note and a review with Hitesh, so we
+        decide go, fix or stop.
+Test:   Given the results sheet, when we review it, then the note has each test number
+        against its target, plus a go, fix or stop call, and it is not longer than 1 page.
+
+In simple words
+---------------
+One page that answers: "Did the idea work? Do we go on, fix something, or stop?"
+It uses only numbers that we measured. Nothing is written that was not measured.
+
+What goes in the note (one page)
+--------------------------------
+  1. Title, date, who wrote it, which build (git commit).
+  2. A table of the five tests: target, result, Pass or Fail
+        T1 Summary accuracy      need 18 of 20     result ...
+        T2 Medicine-dose safety  need 10 of 10     result ...
+        T3 Recall card           need 20 of 20     result ...
+        T4 Review time           need under 30 s   result ... (or NOT MEASURED)
+        T5 Hindi-English         need 4 of 5       result ...
+     plus the speed test of S10: card median, transcript median, how many times faster.
+  3. The call: GO, FIX or STOP, in one line, with the reason.
+  4. What we found (3 to 5 short lines): what worked, what failed, what surprised us.
+  5. Limits (3 to 5 short lines, honest):
+       - 20 mock transcripts, 3 role-players, no real patients
+       - the prompt was tuned on the same 20 transcripts (the score may be lower on new ones)
+       - the medicine list is a demo list from public labels, not checked by a doctor
+       - T1 words rules (frequency, symptom, history) are simple
+  6. Next step if GO or FIX (2 or 3 lines).
+
+How the call is made (from the hypothesis in step.md; Hitesh must agree)
+------------------------------------------------------------------------
+  We believe it works if: T1 is at least 18 of 20, and the card median is under 15 s
+  and at least 2x faster than the transcript.
+  We are wrong (STOP) if: T1 is below 16 of 20 after two prompt iterations, or any wrong
+  dose is saved as approved without a flag, or the card is less than 2x faster.
+  16 or 17 of 20 on T1 is inconclusive (FIX): fix and re-run once.
+  My proposal for the mapping:
+     GO   all five tests Pass and the card is at least 2x faster
+     FIX  T1 is 16 or 17, or one or two tests fail but no "we are wrong" rule is true
+     STOP a "we are wrong" rule is true
+  This mapping is my reading of the rule. We ask Hitesh in the review if he agrees.
+
+What I will write (after you agree with this plan)
+--------------------------------------------------
+  make_note.py   reads results/final_run.txt (S11) and results/timing.csv (S10) and writes
+                 results_note.txt: the table filled with the real numbers, the speed numbers,
+                 and the call that the rule above suggests. You add the "what we found" and
+                 "next step" lines in your own words. It cannot invent a number: when a test
+                 has no result it writes NOT MEASURED.
+  A check in make_note.py that the note is not longer than 1 page (about 45 lines).
+
+Order of work
+-------------
+  1. S10 sessions (Wed 28), then S11 final run (Thu 29). The note uses these numbers only.
+  2. Thu evening: I write make_note.py and fill the table. You write the 4th and 6th parts.
+  3. Fri 30: read the note, send it to Hitesh before the review, and hold the review.
+
+Honest warning (today)
+----------------------
+  In the earlier runs T1 was 16 of 20 and T5 was 3 of 5, both below the target, and T4 is
+  not measured yet. If the final run shows the same, the note says FIX (T1 16 or 17) or
+  that the targets were not met. We write what the numbers say.
+
+Questions for you
+-----------------
+  1. Do you agree with the GO, FIX, STOP mapping above, or do you want to ask Hitesh first?
+  2. Do you want the note in English only, or English and Hindi?
+  3. Who gets the note besides Hitesh?
