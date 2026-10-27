@@ -1,0 +1,101 @@
+SESSION SHEET FOR S10 (timing sessions)
+=======================================
+
+Use this sheet while you run the sessions. It says which patient each
+role-player gets, so nobody sees the same patient twice in two tasks.
+The role-players are called R1, R2 and R3 (labels, not real names).
+
+BEFORE THE FIRST SESSION
+  1. python db/seed.py                (a fresh database)
+  2. streamlit run app/app.py         (the search page is 'app', the stopwatch is 'Timing')
+  3. Delete results/timing.csv if it is there (old practice timings).
+  4. Do the sessions in this order: R1, then R2, then R3.
+     Why: the approval tasks of one person save a new visit and change that patient's
+     card. With this order nobody gets a card that was changed earlier.
+  Do NOT run db/seed.py between two sessions.
+
+WHAT YOU SAY (read it aloud, the same words for everyone)
+  'You play a doctor. I will say a patient name. Find the last visit and tell me
+   four things: the date, the main complaint, the medicines with doses, and the
+   follow-up advice. Say DONE when you have told all four. I will time you.'
+  For the transcript task: 'The same, but you read this text file instead of the card.'
+  For the approval task: 'Review this summary and approve it. Say DONE when you press Approve.'
+
+HOW TO TIME (Timing page)
+  Choose the label (R1), the task (card, transcript or approval) and the patient.
+  Press Start when you finish saying the patient name. Press Stop when you hear DONE.
+  Then say if the answer was correct (compare with the card) and press Save this timing.
+  An answer with a missing or wrong detail is 'no'. It is saved, but not counted in the median.
+
+-----------------------------------------------------------
+R1
+-----------------------------------------------------------
+  Practice (not saved, show the screen):  T20  Kiran Jadhav
+  Task A, card, 7 patients:
+    T01  Rohan Mehta
+    T02  Neha Joshi
+    T03  Sunita Verma
+    T04  Ramesh Kulkarni
+    T05  Meera Iyer
+    T06  Sunita Deshmukh
+    T07  Arjun Patil
+  Task B, transcript, 3 patients (read test_data/Txx_transcript.txt):
+    T10  Vikram Shinde
+    T14  Anjali Desai
+    T18  Pooja Gaikwad
+  Task C, approval, 2 summaries (open the Review page, choose the case):
+    T04  Ramesh Kulkarni
+    T01  Rohan Mehta
+  Order: practice, then A, then B, then C.
+
+-----------------------------------------------------------
+R2
+-----------------------------------------------------------
+  Practice (not saved, show the screen):  T20  Kiran Jadhav
+  Task A, card, 7 patients:
+    T08  Rajesh Kale
+    T09  Meena Pawar
+    T10  Vikram Shinde
+    T11  Kishan Lal
+    T12  Lakshmi Reddy
+    T13  Vikram Singh
+    T14  Anjali Desai
+  Task B, transcript, 3 patients (read test_data/Txx_transcript.txt):
+    T02  Neha Joshi
+    T16  Anita Bhosale
+    T19  Imran Sheikh
+  Task C, approval, 2 summaries (open the Review page, choose the case):
+    T08  Rajesh Kale
+    T05  Meera Iyer
+  Order: practice, then A, then B, then C.
+
+-----------------------------------------------------------
+R3
+-----------------------------------------------------------
+  Practice (not saved, show the screen):  T03  Sunita Verma
+  Task A, card, 7 patients:
+    T15  Pooja Nair
+    T16  Anita Bhosale
+    T17  Sanjay More
+    T18  Pooja Gaikwad
+    T19  Imran Sheikh
+    T20  Kiran Jadhav
+    T02  Neha Joshi
+  Task B, transcript, 3 patients (read test_data/Txx_transcript.txt):
+    T05  Meera Iyer
+    T09  Meena Pawar
+    T12  Lakshmi Reddy
+  Task C, approval, 2 summaries (open the Review page, choose the case):
+    T10  Vikram Shinde
+    T13  Vikram Singh
+  Order: practice, then A, then B, then C.
+
+AFTER THE LAST SESSION
+  python app/timing_report.py
+  It says PASS or FAIL. It says NOT ENOUGH DATA when there are not 3 people,
+  not 20 card timings, or no correct transcript or approval timing.
+  Then push results/timing.csv to GitHub (git add results/timing.csv).
+
+IF YOU HAVE FEWER THAN 3 PEOPLE
+  Use R1 and R2 only. The report will say NOT ENOUGH DATA. Write in the results
+  note: 'tested with N people, not 3'. Never write a number you did not measure.
