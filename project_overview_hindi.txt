@@ -1,0 +1,209 @@
+प्रोजेक्ट की पूरी समझ: Patient History Assistant (S1 से S12)
+============================================================
+
+इस फ़ाइल को पढ़कर आप पूरा प्रोजेक्ट समझ सकती हैं और किसी दूसरे को समझा सकती हैं।
+अंग्रेज़ी रूप: project_overview.txt। यहाँ लिखी स्थिति 27 अक्टूबर 2026 की है।
+
+
+1. दो मिनट में प्रोजेक्ट (यह आप बोलकर बता सकती हैं)
+---------------------------------------------------
+छोटे क्लिनिक में डॉक्टर मरीज़ से बात करता है। हम उस बातचीत का लिखा रूप (transcript) लेते हैं
+और एक AI उससे छोटी, व्यवस्थित summary बनाता है: तकलीफ़, कितने दिन से, पुरानी बीमारी, दवाएँ
+dose के साथ। डॉक्टर summary पढ़ता है, कुछ गलत हो तो ठीक करता है और Approve दबाता है। तभी
+वह save होती है। अगली visit पर डॉक्टर मरीज़ को ढूँढता है और "recall card" में पिछली visit कुछ
+सेकंड में देख लेता है।
+AI और डॉक्टर के बीच एक checker है। वह गलत दिखने वाली दवा का नाम या dose flag करता है, ताकि
+कोई गलती अनजाने में save न हो जाए।
+
+हम यह क्यों बना रहे हैं: दोबारा आने वाले मरीज़ आम हैं और डॉक्टर के पास समय कम है। हमें दो बातें
+जाननी हैं: (1) क्या summary अच्छी और सुरक्षित है, और (2) क्या recall card सच में पुराना transcript
+पढ़ने से तेज़ है?
+
+सब कुछ नकली data पर test है: 20 बनाए हुए transcripts, 20 बनाए हुए मरीज़। कोई असली मरीज़ नहीं,
+कोई असली recording नहीं।
+
+जिस विचार को हम जाँच रहे हैं (hypothesis, step.md से): "अगर हम यह बनाएँ, तो 20 transcripts पर कम से
+कम 18 summaries में हर ज़रूरी बात बनी रहेगी, और role-play करने वाले डॉक्टर card पर पिछली visit की
+मुख्य बातें median 15 सेकंड से कम में ढूँढेंगे, transcript पढ़ने से कम से कम 2 गुना तेज़।"
+हम गलत हैं अगर नतीजा इससे नीचे हो (जैसे card 2 गुना से कम तेज़ हो, या कोई गलत dose बिना flag
+के save हो जाए)।
+
+
+2. तस्वीर
+---------
+  transcript  ->  AI summary  ->  checker (flags)  ->  review screen  ->  Approve और save
+   (S1)           (S3)             (S6)                 (S7)              (S8)
+                                                                            |
+                                                                            v
+                                                              अगली visit पर recall card (S9)
+
+  जो tests इसे नापते हैं:   S4, S5 और S11 (क्या यह सही है?)   S10 (क्या यह तेज़ है?)
+  फ़ैसला:                  S12 (go, fix या stop)
+
+
+3. हर step: क्या, क्यों, कौन सी फ़ाइलें, कौन सा नंबर
+---------------------------------------------------
+S1  Test data
+    क्या:   20 transcripts और 20 "expected summaries" (सही जवाब)। 5 transcripts में हिंदी और
+            अंग्रेज़ी मिली है। 10 में एक जानबूझकर डाली गई गलती है (5 गलत दवा के नाम, 5 गलत dose)।
+            test_data/MANIFEST.csv इनकी list है।
+    क्यों:  हर test दोहराया जा सके। यह परीक्षा का पर्चा और उत्तर-कुंजी है।
+    फ़ाइलें: test_data/, test_data/check_counts.py
+
+S2  नकली मरीज़ और database
+    क्या:   एक database (clinic.db) जिसमें 4 tables हैं: patients, visits, summaries, audit_log।
+            20 मरीज़, हर एक की एक पुरानी approved visit।
+    क्यों:  Recall card को दिखाने के लिए कोई visit चाहिए।
+    फ़ाइलें: db/seed.py     चलाइए: python db/seed.py   (हर बार नया database बनता है)
+
+S3  AI summary
+    क्या:   हर transcript AI model (Groq, openai/gpt-oss-120b, temperature 0) को भेजा जाता है।
+            जवाब एक JSON फ़ाइल है जिसमें summary के fields हैं।
+    क्यों:  यह tool का मुख्य काम है। Temperature 0 और तय model से run दोहराया जा सकता है (दूसरे
+            run में 20 में से 18 पर वही दवाएँ और dose आए)।
+    फ़ाइलें: summary_service/summarize.py, compare_runs.py, prompt_v1.txt (और v2, v3)
+
+S4  Number देने वाली script
+    क्या:   एक script जो हर AI summary को expected summary से मिलाकर score देती है। Scorer की
+            जाँच: एकदम सही copy 20 में से 20, और एक dose हटाई हुई copy 20 में से 19।
+    क्यों:  हर बदलाव के बाद 20 summaries हाथ से नहीं पढ़ सकते।
+    फ़ाइलें: summary_service/score_t1.py
+
+S5  पहला T1 नतीजा और एक prompt सुधार
+    क्या:   T1 = 20 में से कितनी summaries में छह बातें बनी रहीं: दवा, dose, frequency, duration,
+            symptom, history। पहले prompt से run1: 20 में से 8। हमने फ़ेल summaries पढ़कर कारण
+            ढूँढे (हिंदी शब्द copy हुए, "नहीं है" वाली तकलीफ़ें और पुरानी बीमारी छूटी, दो दवाएँ
+            छूटीं)। Prompt में lines जोड़ीं (prompt_v3) और run2 में 20 में से 16 आया।
+    क्यों:  देखने के लिए कि 18 के target से कितनी दूर हैं, और prompt से सुधार होता है या नहीं।
+    Gate:   सुधार के बाद 14 से कम आता तो और prompt का काम करना पड़ता। 16, 14 से ऊपर है।
+    फ़ाइलें: summary_service/prompt_v3.txt, results/results_sheet.csv
+
+S6  दवा और dose की जाँच (checker)
+    क्या:   Summary की हर दवा के लिए: क्या नाम reference list में है? क्या dose उस दवा की आम
+            doses में से है? नहीं तो flag (नामों के लिए "did you mean ..." सुझाव के साथ)।
+            असली summaries पर नतीजा: 10 में से 10 planted errors flag, 10 साफ़ transcripts में से
+            0 पर गलती से flag।
+    क्यों:  गलत dose सबसे बड़ा ख़तरा है। Checker expected summary इस्तेमाल नहीं करता, क्योंकि
+            असली app में वह होती ही नहीं (Hitesh ने यही कहा था)।
+    फ़ाइलें: summary_service/check_medicines.py, formulary.csv (list, source column के साथ)
+
+S9  Recall card
+    क्या:   मरीज़ को नाम से ढूँढिए, पिछली approved visit देखिए: तारीख़, मुख्य तकलीफ़, दवाएँ dose
+            के साथ, आगे की सलाह। Test: सही मरीज़ के लिए 20 में से 20 cards, 80 में से 80 fields सही।
+    क्यों:  यही डॉक्टर का समय बचाता है।
+    फ़ाइलें: app/recall.py, app/app.py, app/test_s9.py
+
+S7  Review screen
+    क्या:   Summary और flags दिखाती है। जब तक हर flag ठीक न किया जाए (दवा बदली जाए) या dismiss
+            न हो ("यह ठीक है"), Approve रुका रहता है।
+    क्यों:  Approve से पहले डॉक्टर को संदिग्ध बातें दिखनी चाहिए।
+    फ़ाइलें: app/review.py, app/pages/1_Review.py, app/test_s7.py
+
+S8  Approve करके save, और audit log
+    क्या:   Approve पर visit save होती है। Approve न करने पर कुछ save नहीं होता। हर काम (approved,
+            left unapproved, blocked) audit log में समय के साथ लिखा जाता है।
+            Test: 20 summaries में 15 approve होकर save, 0 बिना approve save, 20 में से 20 audit entries।
+    क्यों:  Plan का नियम: डॉक्टर के approve किए बिना कुछ save नहीं होता। Log उसका सबूत है।
+    फ़ाइलें: app/save.py, app/test_s8.py
+
+S10 3 role-players के साथ timing
+    क्या:   3 लोग डॉक्टर बनते हैं। हम नापते हैं कि card पर पिछली visit ढूँढने, transcript पढ़कर
+            ढूँढने, और summary देखकर approve करने में कितना समय लगता है। Target: card का median
+            15 s से कम, transcript से कम से कम 2 गुना तेज़, approval 30 s से कम।
+    क्यों:  Code के tests बताते हैं कि tool चलता है। तेज़ है या नहीं, यह सिर्फ़ इंसान बता सकते हैं।
+    फ़ाइलें: app/timing.py, app/pages/2_Timing.py, app/timing_report.py, session_sheet.txt
+    स्थिति: कोड तैयार है। SESSIONS अभी हुए नहीं हैं।
+
+S11 T1 से T5 का final run
+    क्या:   T1 summary accuracy (18 of 20), T2 दवा-dose की सुरक्षा (10 of 10), T3 recall card
+            (20 of 20), T4 review का समय (30 s से कम), T5 हिंदी-अंग्रेज़ी (4 of 5)। Final build पर
+            एक बार चलाना। उसके बाद कुछ नहीं बदलना।
+    क्यों:  ताकि नंबर किसी पुराने version के न हों।
+    फ़ाइलें: run_tests.py (एक command, एक table, results/final_run.txt में save)
+
+S12 Results note
+    क्या:   एक पन्ना: हर test का नंबर उसके target के सामने, फ़ैसला (go, fix या stop), हमने क्या पाया,
+            सीमाएँ। make_note.py असली नंबरों से table भरता है।
+    क्यों:  Hitesh और आप नापे हुए नंबरों से फ़ैसला करते हैं, अंदाज़े से नहीं।
+    फ़ाइलें: make_note.py, results_note.txt
+
+
+4. हम अभी कहाँ हैं (27 अक्टूबर 2026)
+-------------------------------------
+  T1  20 में से 16   target 18 से नीचे
+  T2  10 में से 10   pass
+  T3  20 में से 20   pass
+  T4  नापा नहीं गया (S10 के sessions चाहिए)
+  T5  5 में से 3     target 4 से नीचे (पहले के run से)
+  S10 के sessions और S11 का final run बाकी हैं; फिर S12।
+  आज की ईमानदार बात: build पूरा है, T2 और T3 pass हैं, T1 और T5 target से थोड़े नीचे हैं, और
+  रफ़्तार अभी नापी नहीं गई।
+
+
+5. जो बातें आपको समझा पानी चाहिए
+----------------------------------
+- Prompt: वह लिखा हुआ निर्देश जो हम AI को देते हैं। run1 और run2 के बीच हमने सिर्फ़ prompt बदला।
+- Temperature 0: AI (लगभग) हर बार वही जवाब देता है। दोहराए जा सकने वाले tests के लिए ज़रूरी।
+- Expected summary: सही जवाब, जो सिर्फ़ नंबर देने के लिए है। असली app इसे कभी नहीं देखता।
+- Planted error: जानबूझकर डाली गई गलती (गलत दवा का नाम या dose), यह देखने के लिए कि checker
+  उसे पकड़ता है या नहीं। AI को वही copy करना है जो डॉक्टर ने कहा; checker उसे flag करता है।
+- Flag: "डॉक्टर, कृपया इसे देखिए।" यह कोई फ़ैसला नहीं करता। फ़ैसला डॉक्टर का है।
+- Audit log: जो कुछ हुआ उसकी समय के साथ सूची।
+- Median: बीच वाला नंबर। एक बहुत धीमा व्यक्ति इसे बिगाड़ता नहीं।
+- Gate: एक नंबर जो तय करता है कि हम आगे बढ़ें या नहीं (prompt सुधार के बाद T1, 20 में से 14)।
+
+
+6. लोग जो सवाल पूछ सकते हैं, और ईमानदार जवाब
+--------------------------------------------
+सवाल: T1 सिर्फ़ 20 में से 16 क्यों है?
+जवाब: 4 transcripts (T11, T12, T18, T19) में summary अब भी कुछ पुरानी बीमारी, तकलीफ़ या frequency
+       छोड़ देती है। Plan 16 या 17 को "अनिर्णायक: ठीक करो और एक बार फिर चलाओ" कहता है।
+
+सवाल: क्या prompt सिर्फ़ इन्हीं 20 transcripts के लिए सुधारा गया है?
+जवाब: हाँ, इन्हीं 20 की गलतियाँ पढ़कर सुधारा गया, इसलिए नए transcripts पर score कम हो सकता है।
+       Prompt के अंदर हमने ऐसे examples रखे जो test data से नहीं हैं।
+
+सवाल: दवाओं की list कहाँ से आई?
+जवाब: सामान्य जानकारी से लिखी गई और public दवा labels और sites (Drugs.com, FDA और UK labels आदि)
+       से मिलाई गई। किसी डॉक्टर या pharmacist ने उसे नहीं देखा। असली product के लिए सत्यापित
+       drug database चाहिए।
+
+सवाल: Checker क्या नहीं पकड़ता?
+जवाब: ऐसी दवा जिसका नाम और dose दोनों सही हैं पर वह इस मरीज़ के लिए गलत है। यह एक गोली की
+       strength जाँचता है, पूरे दिन की कुल dose नहीं।
+
+सवाल: Card वाला test (S9) इतनी आसानी से pass क्यों होता है?
+जवाब: Database उन्हीं expected summaries से बना है, इसलिए यह दिखाता है कि lookup ठीक चलता है।
+       यह नहीं नापता कि AI की summary कितनी अच्छी है। वह T1 नापता है।
+
+सवाल: S10 के लिए 3 लोग क्यों चाहिए?
+जवाब: Code नहीं बता सकता कि इंसान तेज़ है या नहीं। 3 लोग plan की संख्या है। यह पहला संकेत है, सबूत नहीं।
+
+सवाल: अगर असली app में expected summary न हो तो?
+जवाब: यही तो बात है: checker reference list इस्तेमाल करता है, expected summary नहीं।
+
+
+7. सीमाएँ (कोई पूछे उससे पहले ख़ुद बता दीजिए)
+---------------------------------------------
+- 20 नकली transcripts, 3 role-players, कोई असली मरीज़ या recording नहीं।
+- Prompt उन्हीं 20 transcripts पर सुधारा गया।
+- दवाओं की list एक demo list है।
+- T1 के frequency, symptom और history वाले शब्द-नियम सीधे-सादे हैं।
+- कोई script नहीं है जो data में phone number जाँचे (वह जाँच हमने S2 में हटा दी थी); data हाथ से
+  बिना असली नाम या फ़ोन के लिखा गया।
+- Streamlit screens demo के लिए हैं, बहुत लोगों के लिए नहीं।
+
+
+8. सब कुछ कैसे चलाएँ (DocAssistant folder से)
+----------------------------------------------
+  python db/seed.py                          नया database
+  python summary_service/summarize.py        AI summaries (.env में key चाहिए)
+  python summary_service/score_t1.py run2    T1 score
+  python summary_service/check_medicines.py run2   S6 checker
+  python app/test_s9.py   python app/test_s7.py   python app/test_s8.py
+  streamlit run app/app.py                   screens: app, Review, Timing
+  python app/timing_report.py                S10 का नतीजा
+  python run_tests.py                        S11 का final run
+  python make_note.py                        S12 का note
+हर फ़ाइल की और जानकारी: code_explained.txt, code_explained_s6_to_s9.txt,
+code_explained_s10_to_s12.txt (और हिंदी रूप)। Plans: plan_s10.txt, plan_s11.txt, plan_s12.txt।

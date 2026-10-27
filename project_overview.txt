@@ -1,0 +1,214 @@
+PROJECT OVERVIEW: Patient History Assistant (S1 to S12)
+=======================================================
+
+Read this file to understand the whole project and to explain it to someone else.
+The Hindi version is project_overview_hindi.txt. The state written here is from 27 Oct 2026.
+
+
+1. THE PROJECT IN TWO MINUTES (you can say this aloud)
+------------------------------------------------------
+A doctor in a small clinic talks to a patient. We take the written conversation (a
+transcript) and an AI turns it into a short structured summary: complaint, duration,
+history, medicines with doses. The doctor reads the summary, fixes anything wrong and
+presses Approve. Only then is it saved. At the next visit the doctor searches the patient
+and sees a "recall card" with the last visit in a few seconds.
+Between the AI and the doctor there is a checker. It flags a medicine name or a dose that
+looks wrong, so a mistake does not get saved by accident.
+
+Why we build it: repeat patients are common and a doctor has little time. We want to know
+two things: (1) is the summary good and safe, and (2) is the recall card really faster than
+reading the old transcript?
+
+Everything is a test on mock data: 20 made-up transcripts, 20 made-up patients. No real
+patient, no real recording.
+
+The idea we test (the hypothesis, from step.md): "If we build this, then on 20 transcripts at
+least 18 summaries keep every required detail, and role-playing doctors find the key details
+on the card in a median under 15 seconds, at least 2x faster than reading the transcript."
+We are wrong if the result is below that (for example the card is less than 2x faster, or a
+wrong dose is saved without a flag).
+
+
+2. THE PICTURE
+--------------
+  transcript  ->  AI summary  ->  checker (flags)  ->  review screen  ->  Approve and save
+   (S1)           (S3)             (S6)                 (S7)              (S8)
+                                                                            |
+                                                                            v
+                                                              recall card at the next visit (S9)
+
+  Tests that measure it:   S4 and S5 and S11 (is it correct?)   S10 (is it fast?)
+  The decision:            S12 (go, fix or stop)
+
+
+3. EVERY STEP: WHAT, WHY, WHICH FILES, WHAT NUMBER
+--------------------------------------------------
+S1  Test data
+    What:  20 transcripts and 20 "expected summaries" (the right answers). 5 transcripts
+           mix Hindi and English. 10 contain one planted error (5 wrong medicine names,
+           5 wrong doses). test_data/MANIFEST.csv lists them.
+    Why:   Every test must be repeatable. This is the exam paper and the answer key.
+    Files: test_data/, test_data/check_counts.py
+
+S2  Fictional patients and database
+    What:  A database (clinic.db) with 4 tables: patients, visits, summaries, audit_log.
+           20 patients, each with one old approved visit.
+    Why:   The recall card needs a visit to show.
+    Files: db/seed.py     Run it: python db/seed.py   (it makes a fresh database each time)
+
+S3  The AI summary
+    What:  Each transcript is sent to the AI model (Groq, openai/gpt-oss-120b, temperature 0).
+           The answer is a JSON file with the fields of the summary.
+    Why:   This is the main job of the tool. Temperature 0 and a fixed model make a run
+           repeatable (a second run gave the same medicines and doses on 18 of 20).
+    Files: summary_service/summarize.py, compare_runs.py, prompt_v1.txt (and v2, v3)
+
+S4  The scoring script
+    What:  A script that compares each AI summary with the expected summary and gives a
+           score. Test of the scorer: a perfect copy scores 20 of 20, a copy with one
+           dose removed scores 19 of 20.
+    Why:   We cannot read 20 summaries by hand after every change.
+    Files: summary_service/score_t1.py
+
+S5  First T1 result and one prompt fix
+    What:  T1 = how many of 20 summaries keep six details: medicine, dose, frequency,
+           duration, symptom, history. run1 with the first prompt: 8 of 20. We read the
+           failed summaries and found the causes (Hindi words copied, "no ..." symptoms and
+           past history left out, two medicines dropped). We added lines to the prompt
+           (prompt_v3) and run2 scored 16 of 20.
+    Why:   To see how far we are from 18 of 20, and if the prompt can fix it.
+    Gate:  Below 14 after the fix would mean more prompt work. 16 is above 14.
+    Files: summary_service/prompt_v3.txt, results/results_sheet.csv
+
+S6  The medicine and dose checker
+    What:  For every medicine of a summary: is the name in a reference list? Is the dose one
+           of the usual doses of that medicine? If not, flag it (with a "did you mean ..."
+           suggestion for names). Result on the real summaries: 10 of 10 planted errors
+           flagged, 0 of 10 clean transcripts flagged by mistake.
+    Why:   A wrong dose is the biggest danger. The checker does not use the expected summary,
+           because the real app has none (Hitesh asked for this).
+    Files: summary_service/check_medicines.py, formulary.csv (the list, with a source column)
+
+S9  The recall card
+    What:  Search a patient by name, see the last approved visit: date, main complaint,
+           medicines with doses, follow-up advice. Test: 20 of 20 cards for the right
+           patient, 80 of 80 fields correct.
+    Why:   This is what saves the doctor's time.
+    Files: app/recall.py, app/app.py, app/test_s9.py
+
+S7  The review screen
+    What:  Shows the summary and the flags. Approve is blocked until each flag is fixed
+           (change the medicine) or dismissed ("it is fine").
+    Why:   The doctor must see the doubtful items before approving.
+    Files: app/review.py, app/pages/1_Review.py, app/test_s7.py
+
+S8  Approve and save, and the audit log
+    What:  Approve saves the visit. Leaving it unapproved saves nothing. Every action
+           (approved, left unapproved, blocked) is written in the audit log with the time.
+           Test: of 20 summaries, 15 approved and saved, 0 unapproved saved, 20 of 20 audit entries.
+    Why:   The plan's rule: nothing is saved until the doctor approves. The log is the proof.
+    Files: app/save.py, app/test_s8.py
+
+S10 Timing sessions with 3 role-players
+    What:  3 people play doctors. We time how long they need to find the last visit on the card,
+           by reading the transcript, and to review and approve. Target: card median under 15 s,
+           at least 2x faster than the transcript, approval under 30 s.
+    Why:   The code tests say the tool works. Only people can say if it is fast.
+    Files: app/timing.py, app/pages/2_Timing.py, app/timing_report.py, session_sheet.txt
+    State: the code is ready. THE SESSIONS ARE NOT DONE YET.
+
+S11 The final run of T1 to T5
+    What:  T1 summary accuracy (18 of 20), T2 medicine-dose safety (10 of 10), T3 recall card
+           (20 of 20), T4 review time (under 30 s), T5 Hindi-English (4 of 5). Run once on the
+           final build. Nothing is changed after it.
+    Why:   So the numbers do not come from an old version.
+    Files: run_tests.py (one command, one table, saved in results/final_run.txt)
+
+S12 The results note
+    What:  One page: each test number against its target, the call (go, fix or stop), what we
+           found, the limits. make_note.py fills the table from the real numbers.
+    Why:   Hitesh and you decide from measured numbers, not from feelings.
+    Files: make_note.py, results_note.txt
+
+
+4. WHERE WE ARE (27 Oct 2026)
+-----------------------------
+  T1  16 of 20   below the target of 18
+  T2  10 of 10   pass
+  T3  20 of 20   pass
+  T4  not measured (needs the S10 sessions)
+  T5  3 of 5     below the target of 4 (from the earlier run)
+  S10 sessions and the S11 final run are still to do; then S12.
+  So today the honest summary is: the build is finished, the tests T2 and T3 pass, T1 and T5
+  are a little below target, the speed is not measured yet.
+
+
+5. IDEAS YOU MUST BE ABLE TO EXPLAIN
+------------------------------------
+- Prompt: the written instruction we give the AI. We changed only the prompt between run1 and run2.
+- Temperature 0: the AI gives (almost) the same answer each time. Needed for repeatable tests.
+- Expected summary: the right answer, used ONLY to give marks. The real app never sees it.
+- Planted error: a mistake we put in on purpose (a wrong medicine name or dose) to see if the
+  checker finds it. The AI must copy what the doctor said; the checker flags it.
+- Flag: "doctor, please look at this". It does not decide anything. The doctor decides.
+- Audit log: a list of everything that happened, with the time.
+- Median: the middle number. One very slow person does not spoil it.
+- Gate: a number that decides if we go on (T1 14 of 20 after the prompt fix).
+
+
+6. QUESTIONS PEOPLE MAY ASK, AND HONEST ANSWERS
+-----------------------------------------------
+Q: Why is T1 only 16 of 20?
+A: The summaries still miss some past history, symptoms or a frequency in 4 transcripts
+   (T11, T12, T18, T19). The plan calls 16 or 17 "inconclusive: fix and run once more".
+
+Q: Is the prompt tuned only for these 20 transcripts?
+A: Yes, it was improved by reading the failures of these 20, so on new transcripts the score
+   may be lower. We used examples in the prompt that are not from the test data.
+
+Q: Where does the medicine list come from?
+A: It was written from general knowledge and checked against public drug labels and sites
+   (Drugs.com, FDA and UK labels and similar). It was not reviewed by a doctor or pharmacist.
+   For a real product we need a verified drug database.
+
+Q: What does the checker NOT catch?
+A: A correct name with a correct dose that is the wrong medicine for this patient. It also
+   checks one tablet strength, not the total dose of the day.
+
+Q: Why does the card test (S9) pass so easily?
+A: The database was made from the same expected summaries, so it shows the lookup works.
+   It does not measure how good the AI summary is. T1 does that.
+
+Q: Why do we need 3 people for S10?
+A: The code cannot tell if a human is faster. 3 people is the plan's number. It is a first
+   sign, not a proof.
+
+Q: What if the real app has no expected summary?
+A: That is the point: the checker uses a reference list, not the expected summary.
+
+
+7. LIMITS (say them yourself before someone asks)
+-------------------------------------------------
+- 20 mock transcripts, 3 role-players, no real patients or recordings.
+- The prompt was tuned on the same 20 transcripts.
+- The medicine list is a demo list.
+- T1's word rules for frequency, symptom and history are simple.
+- There is no script that checks the data for phone numbers (we removed that check in S2); the
+  data was written by hand without real names or phones.
+- Streamlit screens are for a demo, not for many users.
+
+
+8. HOW TO RUN EVERYTHING (from the DocAssistant folder)
+-------------------------------------------------------
+  python db/seed.py                          fresh database
+  python summary_service/summarize.py        AI summaries (needs the key in .env)
+  python summary_service/score_t1.py run2    T1 score
+  python summary_service/check_medicines.py run2   S6 checker
+  python app/test_s9.py   python app/test_s7.py   python app/test_s8.py
+  streamlit run app/app.py                   the screens: app, Review, Timing
+  python app/timing_report.py                S10 result
+  python run_tests.py                        S11 final run
+  python make_note.py                        S12 note
+More detail on each file: code_explained.txt, code_explained_s6_to_s9.txt,
+code_explained_s10_to_s12.txt (and the Hindi versions). The plans: plan_s10.txt, plan_s11.txt,
+plan_s12.txt.
