@@ -1,0 +1,68 @@
+CODE EXPLAINED: S10 to S12 (simple language)
+============================================
+
+New things here are few. Functions, import, dictionary and Streamlit are explained in
+code_explained_s6_to_s9.txt. Read the plans first: plan_s10.txt, plan_s11.txt, plan_s12.txt.
+
+One new idea: a CSV file is a text file with one record on each line and the values
+separated by commas. results/timing.csv and results/results_sheet.csv are CSV files.
+Excel opens them.
+
+
+S10: timing the role-play sessions
+==================================
+Why: the plan wants to know if the recall card is really faster than reading the transcript.
+Files and what they do
+  app/timing.py          the logic
+    record_time(person, task, patient, seconds, correct)   adds one line to results/timing.csv
+    read_times()           reads all lines
+    median(numbers)        the middle number of a list (the median)
+    make_report(rows)      works out the numbers of the plan and says PASS, FAIL or
+                           NOT ENOUGH DATA. Only answers marked "yes" (correct) are counted.
+                           It says NOT ENOUGH DATA until there are 3 people, 20 card timings,
+                           and at least one correct transcript timing and approval timing.
+  app/pages/2_Timing.py  the stopwatch screen: Start, Stop, "was the answer correct?", Save.
+  app/timing_report.py   prints the report.
+  session_sheet.txt      which patients each role-player gets (R1, R2, R3).
+How to run
+  streamlit run app/app.py      then open "Timing" in the left menu
+  python app/timing_report.py
+Why a median and not an average: one very slow or very fast timing does not spoil it.
+
+
+S11: the final run of T1 to T5
+==============================
+Why: the plan wants all five numbers from one run on the final build, and no change after.
+File: run_tests.py
+  run(command)         runs one of our scripts and returns what it printed
+  find_line(...)       finds the line we need in that output (and shows the error if it
+                       stopped)
+  number_after(...)    takes the number that follows a text, example "T1 score: 16 of 20" -> 16
+  The file runs, in this order:
+    T1  score_t1.py run2
+    T2  check_medicines.py run2 (S6) and app/test_s7.py (S7)
+    T3  db/seed.py (fresh database) and app/test_s9.py
+    T4  reads results/timing.csv: the median of the correct approval timings, 3 people needed
+    T5  the code-mixed cases (T03, T07, T11, T15, T19) that pass in the T1 scoring: 4 of 5 needed
+  It prints one table with Pass, Fail or NOT MEASURED, shows the git commit that was tested,
+  warns if there are uncommitted changes, and saves everything in results/final_run.txt.
+How to run
+  commit everything first, then:  python run_tests.py   (once; nothing is changed after it)
+
+
+S12: the results note
+=====================
+Why: Hitesh and you decide go, fix or stop from one page of measured numbers.
+File: make_note.py
+  read_final_run(file)    reads results/final_run.txt into a dictionary for T1 to T5
+  first_number(text)      the first whole number in a text
+  make_call(tests, speed) gives GO, FIX, STOP or NO CALL YET with the reason:
+      STOP  T1 below 16 of 20, or T2 failed, or the card is less than 2x faster
+      GO    all five tests pass, the card median is under 15 s and it is 2x faster
+      FIX   everything else (T1 of 16 or 17 is "inconclusive: fix and run once more")
+      NO CALL YET   when something is not measured. It never invents a number.
+  build_note(...)         builds the lines of the note (tests, speed, call, limits)
+  main()                  writes results_note.txt and warns if it is longer than one page
+How to run
+  python make_note.py     then write the two lines marked [WRITE ...] in your own words
+The rules for the call are the hypothesis of step.md. Hitesh must agree with this reading.

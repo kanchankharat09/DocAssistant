@@ -1,0 +1,67 @@
+कोड की आसान हिंदी: S10 से S12
+=============================
+
+यहाँ नई बातें कम हैं। Function, import, dictionary और Streamlit code_explained_s6_to_s9.txt
+में समझाए हैं। पहले plans पढ़िए: plan_s10.txt, plan_s11.txt, plan_s12.txt।
+
+एक नया विचार: CSV फ़ाइल एक text फ़ाइल होती है जिसमें हर line में एक record होता है और
+values कॉमा से अलग होती हैं। results/timing.csv और results/results_sheet.csv CSV फ़ाइलें हैं।
+Excel उन्हें खोल लेता है।
+
+
+S10: role-play sessions की timing
+=================================
+क्यों: plan जानना चाहता है कि recall card transcript पढ़ने से सच में तेज़ है या नहीं।
+फ़ाइलें और वे क्या करती हैं
+  app/timing.py          logic
+    record_time(person, task, patient, seconds, correct)   results/timing.csv में एक line जोड़ता है
+    read_times()           सारी lines पढ़ता है
+    median(numbers)        list का बीच वाला नंबर (median)
+    make_report(rows)      plan के नंबर निकालता है और PASS, FAIL या NOT ENOUGH DATA कहता है।
+                           सिर्फ़ "yes" (सही) वाले जवाब गिने जाते हैं। जब तक 3 लोग, 20 card
+                           nap और कम से कम एक सही transcript व approval nap नहीं होते, यह
+                           NOT ENOUGH DATA कहता है।
+  app/pages/2_Timing.py  stopwatch screen: Start, Stop, "जवाब सही था?", Save।
+  app/timing_report.py   report छापता है।
+  session_sheet.txt      हर role-player को कौन से मरीज़ मिलेंगे (R1, R2, R3)।
+कैसे चलाएँ
+  streamlit run app/app.py      फिर बाईं तरफ़ मेनू में "Timing" खोलिए
+  python app/timing_report.py
+Median क्यों, औसत क्यों नहीं: एक बहुत धीमा या बहुत तेज़ nap उसे बिगाड़ता नहीं।
+
+
+S11: T1 से T5 का final run
+==========================
+क्यों: plan एक ही run से, final build पर, पाँचों नंबर चाहता है, और उसके बाद कोई बदलाव नहीं।
+फ़ाइल: run_tests.py
+  run(command)         हमारी एक script चलाकर जो छापे वह लौटाता है
+  find_line(...)       उस output में हमें चाहिए वाली line ढूँढता है (रुक गया हो तो error दिखाता है)
+  number_after(...)    किसी text के बाद का नंबर लेता है, जैसे "T1 score: 16 of 20" -> 16
+  फ़ाइल इस क्रम में चलाती है:
+    T1  score_t1.py run2
+    T2  check_medicines.py run2 (S6) और app/test_s7.py (S7)
+    T3  db/seed.py (नया database) और app/test_s9.py
+    T4  results/timing.csv पढ़ता है: सही approval timings का median, 3 लोग चाहिए
+    T5  code-mixed cases (T03, T07, T11, T15, T19) में से जो T1 scoring में pass हों: 5 में से 4 चाहिए
+  यह एक table छापता है (Pass, Fail या NOT MEASURED), जो git commit जाँचा गया वह दिखाता है,
+  uncommitted बदलाव हों तो चेतावनी देता है, और सब results/final_run.txt में save करता है।
+कैसे चलाएँ
+  पहले सब कुछ commit कीजिए, फिर:  python run_tests.py   (एक बार; इसके बाद कुछ नहीं बदलना)
+
+
+S12: results note
+=================
+क्यों: Hitesh और आप एक पन्ने के नापे हुए नंबरों से go, fix या stop तय करते हैं।
+फ़ाइल: make_note.py
+  read_final_run(file)    results/final_run.txt को T1 से T5 की dictionary में पढ़ता है
+  first_number(text)      text का पहला पूरा नंबर
+  make_call(tests, speed) GO, FIX, STOP या NO CALL YET कारण के साथ देता है:
+      STOP  T1, 20 में से 16 से कम, या T2 फ़ेल, या card, transcript से 2 गुना से कम तेज़
+      GO    पाँचों tests pass, card का median 15 s से कम और 2 गुना तेज़
+      FIX   बाकी सब (T1 का 16 या 17 "अनिर्णायक: ठीक करो और एक बार फिर चलाओ" है)
+      NO CALL YET   जब कुछ नापा नहीं गया हो। यह कभी कोई नंबर नहीं गढ़ता।
+  build_note(...)         note की lines बनाता है (tests, speed, फ़ैसला, सीमाएँ)
+  main()                  results_note.txt लिखता है और एक पन्ने से लंबा हो तो चेतावनी देता है
+कैसे चलाएँ
+  python make_note.py     फिर [WRITE ...] वाली दो lines अपने शब्दों में लिखिए
+फ़ैसले के नियम step.md की hypothesis से हैं। Hitesh को इस समझ से सहमत होना चाहिए।
