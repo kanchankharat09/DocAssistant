@@ -9,7 +9,7 @@ import time
 import streamlit as st
 
 sys.path.insert(0, "app")
-from recall import find_patients
+from recall import find_patients, get_recall_card
 from timing import make_report, read_times, record_time
 
 st.title("Timing session")
@@ -21,6 +21,24 @@ names = []
 for patient in find_patients(""):          # an empty search text gives all the patients
     names.append(patient["name"])
 patient_name = st.selectbox("Patient", names)
+
+# the right answer, for you (the observer) to compare with what the role-player says.
+# It is closed at first. Do not open it while the role-player can see this page.
+if task in ["card", "transcript"]:
+    with st.expander("Show the right answer (observer only)"):
+        found = find_patients(patient_name)
+        card = None
+        if len(found) > 0:
+            card = get_recall_card(found[0]["patient_id"])
+        if card is None:
+            st.write("No card found.")
+        else:
+            st.write("**Last visit:** " + card["visit_date"])
+            st.write("**Main complaint:** " + card["main_complaint"])
+            st.write("**Medicines:**")
+            for line in card["medicines"].split("\n"):
+                st.write("- " + line)
+            st.write("**Follow-up advice:** " + card["follow_up_advice"])
 
 # st.session_state keeps the start time between the clicks
 if st.button("Start"):
