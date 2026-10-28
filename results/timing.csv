@@ -28,7 +28,6 @@ time,person,task,patient,seconds,correct
 2026-10-28T09:52:52,R1,card,Sunita Verma,5.8,yes
 2026-10-28T09:53:26,R1,card,Ramesh Kulkarni,6.1,yes
 2026-10-28T22:13:46,R2,card,Sunita Verma,12.9,yes
-2026-10-28T22:14:35,R3,card,Sunita Verma,7.8,yes
 2026-10-28T22:15:10,R3,card,Ramesh Kulkarni,6.9,yes
 2026-10-28T22:15:38,R3,card,Arjun Patil,8.6,yes
 2026-10-28T22:18:40,R3,card,Rohan Mehta,7.4,yes
@@ -37,10 +36,7 @@ time,person,task,patient,seconds,correct
 2026-10-28T22:27:28,R2,approval,Arjun Patil,12.6,yes
 2026-10-28T22:34:56,R1,transcript,Rajesh Kale,17.4,yes
 2026-10-28T22:36:20,R1,transcript,Kishan Lal,26.6,yes
-2026-10-28T22:37:03,R1,transcript,Kishan Lal,17.9,yes
 2026-10-28T22:38:04,R1,transcript,Vikram Singh,18.2,yes
-2026-10-28T22:38:40,R1,transcript,Vikram Singh,15.5,yes
-2026-10-28T22:39:43,R1,transcript,Sunita Deshmukh,19.4,yes
 2026-10-28T22:40:46,R2,transcript,Sunita Deshmukh,16.8,yes
 2026-10-28T22:41:52,R2,transcript,Pooja Nair,19.3,yes
 2026-10-28T22:42:55,R2,transcript,Sanjay More,17.5,yes
