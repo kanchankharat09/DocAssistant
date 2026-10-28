@@ -1,0 +1,5 @@
+- The recall card was faster than reading the transcript (see section 2), and the review screen worked: Approve is blocked until each flag is fixed or dismissed.
+- The medicine checker flagged all 10 planted errors with no false flags.
+- T1 is 16 of 20 (target 18): 4 summaries still miss some past history, symptom or frequency (T11, T12, T18, T19).
+- The Hindi-English summaries pass in 3 of 5 cases (target 4).
+- The timing sessions were run by 3 people, but R1 is the builder, so the times are probably lower than for real doctors.

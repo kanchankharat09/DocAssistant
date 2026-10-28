@@ -1,10 +1,4 @@
 time,person,task,patient,seconds,correct
-2026-10-27T09:15:44,R1,card,Meera Iyer,5.8,yes
-2026-10-27T09:16:02,R1,card,Sunita Deshmukh,5.2,yes
-2026-10-27T09:16:30,R1,card,Arjun Patil,7.0,yes
-2026-10-27T09:17:09,R1,transcript,Arjun Patil,3.8,yes
-2026-10-28T07:30:33,R1,card,Anita Bhosale,1.6,yes
-2026-10-28T07:39:50,R1,card,Anita Bhosale,1.5,yes
 2026-10-28T07:49:18,R1,card,Rohan Mehta,2.4,yes
 2026-10-28T07:54:35,R1,card,Neha Joshi,20.2,yes
 2026-10-28T07:56:03,R1,card,Meera Iyer,10.6,yes
@@ -24,8 +18,6 @@ time,person,task,patient,seconds,correct
 2026-10-28T08:25:15,R2,transcript,Neha Joshi,18.7,yes
 2026-10-28T08:26:19,R2,transcript,Anita Bhosale,23.8,yes
 2026-10-28T08:27:16,R2,transcript,Imran Sheikh,25.2,yes
-2026-10-28T08:28:18,R2,transcript,Rajesh Kale,13.7,yes
-2026-10-28T08:29:29,R2,transcript,Meera Iyer,2.8,yes
 2026-10-28T08:30:30,R2,approval,Meera Iyer,2.7,yes
 2026-10-28T08:31:09,R2,approval,Rajesh Kale,4.3,yes
 2026-10-28T08:31:59,R3,card,Pooja Nair,5.1,yes

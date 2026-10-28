@@ -5,7 +5,8 @@
 #   results/timing.csv      the role-play timings (S10)
 # and writes results_note.txt. It cannot invent a number: a test with no result says
 # NOT MEASURED, and then it makes no call.
-# You add the lines marked [WRITE ...] in your own words.
+# You write section 4 in note_found.txt and section 6 in note_next.txt (one line each, in your own words).
+# Until then the note shows the lines marked [WRITE ...].
 #
 # The call follows the hypothesis of step.md (Hitesh must agree with this reading):
 #   STOP  a "we are wrong" rule is true: T1 below 16 of 20, a wrong dose saved without a flag
@@ -51,6 +52,19 @@ def read_final_run(file_name):
         else:
             header.append(line)
     return header, tests
+
+
+def read_text_lines(file_name, placeholder):
+    # the lines of a small text file written by you (note_found.txt or note_next.txt).
+    # If the file is not there or is empty, the placeholder line is used.
+    if os.path.exists(file_name):
+        lines = []
+        for line in open(file_name, encoding="utf-8").read().split("\n"):
+            if line.strip() != "":
+                lines.append("   " + line.strip())
+        if len(lines) > 0:
+            return lines
+    return ["   " + placeholder]
 
 
 def first_number(text):
@@ -135,7 +149,7 @@ def build_note(header, tests, speed, call, reason):
     lines.append("   (Suggested by the rules of step.md. The final call is made with Hitesh.)")
     lines.append("")
     lines.append("4. What we found")
-    lines.append("   [WRITE 3 to 5 short lines: what worked, what failed, what surprised you]")
+    lines = lines + read_text_lines("note_found.txt", "[WRITE 3 to 5 short lines: what worked, what failed, what surprised you]")
     lines.append("")
     lines.append("5. Limits")
     lines.append("   - 20 mock transcripts and 3 role-players, no real patients. The numbers are a first sign, not a proof.")
@@ -144,7 +158,7 @@ def build_note(header, tests, speed, call, reason):
     lines.append("   - The T1 rules for frequency, symptom and history are simple word rules.")
     lines.append("")
     lines.append("6. Next step")
-    lines.append("   [WRITE 2 or 3 lines: what we do next if GO or FIX]")
+    lines = lines + read_text_lines("note_next.txt", "[WRITE 2 or 3 lines: what we do next if GO or FIX]")
     return lines
 
 
