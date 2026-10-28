@@ -1,9 +1,9 @@
 FINAL RUN OF T1 TO T5
-run: run2   time: 2026-10-28T21:34:19
-git commit tested: e821b61 (WARNING: uncommitted changes, commit first and run again)
+run: run2   time: 2026-10-28T23:00:53
+git commit tested: 11dcfb6 (no uncommitted changes)
 
 T1  summary accuracy (need 18 of 20):  16 of 20   Fail
 T2  medicine-dose safety (need 10 of 10 flagged, at most 2 false flags, Approve blocked on a flag):  10 of 10 flagged, 0 false flags, S7 test pass   Pass
 T3  recall card (need 20 of 20 cards, 80 of 80 fields):  20 of 20 cards, 80 of 80 fields   Pass
-T4  review time (need median under 30 s with 3 people):  median 4.3 s with 3 people   Pass
+T4  review time (need median under 30 s with 3 people):  median 13.8 s with 3 people   Pass
 T5  Hindi-English (need 4 of 5):  3 of 5   Fail   (cases: T03, T07, T11, T15, T19)
