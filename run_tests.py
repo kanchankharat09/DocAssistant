@@ -66,6 +66,11 @@ def pass_or_fail(ok):
     return "Fail"
 
 
+# which code is tested: look at git BEFORE we run anything, because the T1 scoring adds a line to
+# results/results_sheet.csv, and that would look like an uncommitted change
+commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True).stdout.strip()
+dirty = subprocess.run(["git", "status", "--porcelain", "--untracked-files=no"], capture_output=True, text=True).stdout.strip()
+
 table = []
 
 # T1: the score of the run
@@ -133,9 +138,6 @@ else:
     table.append("T5  Hindi-English (need 4 of 5):  " + str(passed) + " of " + str(len(code_mixed)) + "   "
                  + pass_or_fail(passed >= 4) + "   (cases: " + ", ".join(code_mixed) + ")")
 
-# which code was tested, so we can say that nothing changed after this run
-commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True).stdout.strip()
-dirty = subprocess.run(["git", "status", "--porcelain", "--untracked-files=no"], capture_output=True, text=True).stdout.strip()
 if dirty == "":
     changes = "no uncommitted changes"
 else:
