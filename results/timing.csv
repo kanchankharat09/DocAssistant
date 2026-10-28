@@ -31,3 +31,6 @@ time,person,task,patient,seconds,correct
 2026-10-28T08:36:21,R3,transcript,Lakshmi Reddy,24.0,yes
 2026-10-28T08:37:34,R3,approval,Vikram Shinde,11.7,yes
 2026-10-28T08:38:17,R3,approval,Vikram Singh,3.0,yes
+2026-10-28T09:52:33,R1,card,Rohan Mehta,9.2,yes
+2026-10-28T09:52:52,R1,card,Sunita Verma,5.8,yes
+2026-10-28T09:53:26,R1,card,Ramesh Kulkarni,6.1,yes
