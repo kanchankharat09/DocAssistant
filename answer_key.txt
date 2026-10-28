@@ -1,0 +1,143 @@
+ANSWER KEY FOR THE TIMING SESSIONS (S10)
+========================================
+
+This is what the recall card of each patient shows. Use it to check what the role-player says.
+It is the same as the card on the screen (made from the expected summaries).
+
+HOW TO MARK AN ANSWER
+  yes  all four are right: date, main complaint, medicines with doses, follow-up advice
+  no   one of the four is missing or wrong (for example a wrong dose, or no advice)
+  Different words with the same meaning are fine ('cough' or 'khansi').
+  A wrong answer is saved with 'no'. It is not counted in the median.
+  Keep this file away from the role-player (do not share your screen with it).
+
+T01  Rohan Mehta
+   date:      2026-09-24
+   complaint: Fever and body ache for 2 days, mild cough
+   medicine:  Paracetamol 500mg — three times a day after food — 3 days
+   medicine:  Cetirizine 10mg — once a day at night — 3 days
+   advice:    Drink plenty of water and take rest. Return if fever lasts more than 3 days.
+
+T02  Neha Joshi
+   date:      2026-09-24
+   complaint: Sore throat and pain on swallowing for 3 days, with fever
+   medicine:  Amoxicillin 500mg — three times a day after food — 5 days
+   medicine:  Paracetamol 500mg — three times a day if fever — 3 days
+   advice:    Gargle with warm salt water. Return if no improvement in 3 days.
+
+T03  Sunita Verma
+   date:      2026-09-24
+   complaint: Acidity and burning in stomach for 4 days, worse after meals; excess gas
+   medicine:  Pantoprazole 40mg — once a day in the morning on empty stomach — 7 days
+   medicine:  Domperidone 10mg — twice a day before food — 5 days
+   advice:    Avoid spicy and oily food. Return if burning continues after 7 days.
+
+T04  Ramesh Kulkarni
+   date:      2026-09-24
+   complaint: Morning headache, BP not controlled (150/96)
+   medicine:  Amlodipine 5mg — once a day in the morning — 30 days
+   advice:    Reduce salt. Walk 30 minutes daily. Recheck BP after 2 weeks.
+
+T05  Meera Iyer
+   date:      2026-09-24
+   complaint: Burning while passing urine and frequent urination for 2 days
+   medicine:  Nitrofurantoin 100mg — twice a day after food — 5 days
+   advice:    Drink at least 3 litres of water a day. Return if burning continues after 5 days.
+
+T06  Sunita Deshmukh
+   date:      2026-09-24
+   complaint: Sneezing, runny nose and itchy eyes for 4 days
+   medicine:  Cetirizine 10mg — once a day at night — 7 days
+   advice:    Avoid dust and cold drinks. Return if no improvement in 7 days.
+
+T07  Arjun Patil
+   date:      2026-09-24
+   complaint: Loose motions 5-6 times a day for 2 days, mild abdominal pain
+   medicine:  Racecadotril 100mg — three times a day before food — 3 days
+   medicine:  ORS solution — after every loose motion
+   advice:    Avoid outside food. Return if not better in 3 days or if fever develops.
+
+T08  Rajesh Kale
+   date:      2026-09-24
+   complaint: Fever and body pain for 2 days, with headache
+   medicine:  Paracetamol 500mg — three times a day after food — 3 days
+   advice:    Drink plenty of water and take rest. Return if fever continues after 3 days.
+
+T09  Meena Pawar
+   date:      2026-09-24
+   complaint: Burning in the chest and sour taste in the mouth for 1 week, mostly after meals
+   medicine:  Pantoprazole 40mg — once a day before breakfast — 14 days
+   advice:    Avoid spicy and oily food. Do not lie down right after meals. Return if no improvement in 2 weeks.
+
+T10  Vikram Shinde
+   date:      2026-09-24
+   complaint: Cough with yellow phlegm and fever for 4 days
+   medicine:  Azithromycin 500mg — once a day after food — 3 days
+   medicine:  Paracetamol 500mg — three times a day if fever — 3 days
+   advice:    Drink warm water. Return if no improvement in 3 days.
+
+T11  Kishan Lal
+   date:      2026-09-24
+   complaint: Right knee pain for 1 week, worse on climbing stairs
+   medicine:  Diclofenac 50mg — twice a day after food — 5 days
+   medicine:  Pantoprazole 40mg — once a day in the morning — 5 days
+   medicine:  Metformin 500mg — morning and evening — continue as before
+   advice:    Hot compress twice a day. Avoid climbing stairs too much. Return if pain continues after 5 days.
+
+T12  Lakshmi Reddy
+   date:      2026-09-23
+   complaint: Tiredness, weight gain, feeling cold
+   medicine:  Levothyroxine 75mcg — once a day in the morning on empty stomach, 30-60 minutes before breakfast — dose increased from 50mcg to 75mcg
+   advice:    Keep calcium and iron tablets at least 4 hours apart from Levothyroxine. Repeat TSH in 6 weeks.
+
+T13  Vikram Singh
+   date:      2026-09-23
+   complaint: Lower back pain for 3 days after lifting a heavy box
+   medicine:  Naproxen 500mg — twice a day after food — 5 days
+   medicine:  Pantoprazole 40mg — once a day before breakfast — 5 days
+   advice:    Hot compress twice a day. Avoid lifting heavy weight. Return immediately if leg weakness, numbness, or trouble passing urine.
+
+T14  Anjali Desai
+   date:      2026-09-23
+   complaint: Itchy red rash on arms and chest for 3 days, started after eating prawns
+   medicine:  Levocetirizine 5mg — once a day at night — 5 days
+   medicine:  Calamine lotion — apply on the rash twice a day — 5 days
+   advice:    Avoid prawns. Return immediately if lips or face swell or breathlessness.
+
+T15  Pooja Nair
+   date:      2026-09-24
+   complaint: Headache, blocked nose and mild cold for 3 days
+   medicine:  Cetirizine 10mg — once a day at night — 5 days
+   medicine:  Paracetamol 500mg — only if needed for headache, maximum 3 times a day
+   advice:    Steam inhalation twice a day. Return if not better in 5 days.
+
+T16  Anita Bhosale
+   date:      2026-09-24
+   complaint: Burning while passing urine with increased frequency for 2 days
+   medicine:  Nitrofurantoin 100mg — twice a day after food — 5 days
+   advice:    Drink plenty of water. Return if no improvement in 3 days.
+
+T17  Sanjay More
+   date:      2026-09-24
+   complaint: Pain in both knees for 1 month, worse on climbing stairs
+   medicine:  Diclofenac 50mg — twice a day after food — 5 days
+   advice:    Apply warm compress. Avoid climbing stairs when possible. Return after 5 days.
+
+T18  Pooja Gaikwad
+   date:      2026-09-24
+   complaint: Severe one-sided headache with nausea since morning, light sensitivity
+   medicine:  Sumatriptan 50mg — once at start of headache, repeat after 2 hours if needed — 2 days
+   advice:    Rest in a dark, quiet room. Return if headache continues beyond 2 days.
+
+T19  Imran Sheikh
+   date:      2026-09-24
+   complaint: Itching and red spots near the groin for 2 weeks, worse with sweating
+   medicine:  Clotrimazole cream — apply on the affected area twice a day — 2 weeks
+   medicine:  Fluconazole 150mg — once a week — 2 weeks
+   advice:    Wear loose cotton clothes. Keep the area dry. Return if not better after 2 weeks.
+
+T20  Kiran Jadhav
+   date:      2026-09-24
+   complaint: Tiredness and increased thirst for 2 weeks, high sugar at a camp
+   medicine:  Metformin 500mg — twice a day after food — 30 days
+   advice:    Reduce sweets and rice. Walk daily for 30 minutes. Return with fasting sugar report after 30 days.
