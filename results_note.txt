@@ -1,8 +1,8 @@
 RESULTS NOTE: Patient History Assistant (MVP on mock data)
 
 FINAL RUN OF T1 TO T5
-run: run2   time: 2026-10-28T09:29:32
-git commit tested: 4520d95 (WARNING: uncommitted changes, commit first and run again)
+run: run2   time: 2026-10-28T21:34:19
+git commit tested: e821b61 (WARNING: uncommitted changes, commit first and run again)
 
 1. Tests against their targets
    T1 summary accuracy | need 18 of 20 | 16 of 20   Fail
@@ -12,16 +12,20 @@ git commit tested: 4520d95 (WARNING: uncommitted changes, commit first and run a
    T5 Hindi-English | need 4 of 5 | 3 of 5   Fail
 
 2. Speed (role-play sessions, S10)
-   People: 3 (need 3), card timings: 24 (need 20), answers not correct: 0
-   Card median 5.5 s (need under 15), transcript median 14.2 s
-   Card is 2.6 times faster (need at least 2), approval median 4.3 s (need under 30)
+   People: 3 (need 3), card timings: 21 (need 20), answers not correct: 0
+   Card median 8.3 s (need under 15), transcript median 18.4 s
+   Card is 2.2 times faster (need at least 2), approval median 13.8 s (need under 30)
 
 3. Call: FIX
    Why: T1 is 16 of 20: inconclusive, fix and run once more (plan rule)
    (Suggested by the rules of step.md. The final call is made with Hitesh.)
 
 4. What we found
-   [WRITE 3 to 5 short lines: what worked, what failed, what surprised you]
+   - The recall card was faster than reading the transcript (see section 2), and the review screen worked: Approve is blocked until each flag is fixed or dismissed.
+   - The medicine checker flagged all 10 planted errors with no false flags.
+   - T1 is 16 of 20 (target 18): 4 summaries still miss some past history, symptom or frequency (T11, T12, T18, T19).
+   - The Hindi-English summaries pass in 3 of 5 cases (target 4).
+   - The timing sessions were run by 3 people, but R1 is the builder, so the times are probably lower than for real doctors.
 
 5. Limits
    - 20 mock transcripts and 3 role-players, no real patients. The numbers are a first sign, not a proof.
@@ -30,4 +34,6 @@ git commit tested: 4520d95 (WARNING: uncommitted changes, commit first and run a
    - The T1 rules for frequency, symptom and history are simple word rules.
 
 6. Next step
-   [WRITE 2 or 3 lines: what we do next if GO or FIX]
+   - Ask Hitesh if one more prompt change is allowed (history and "no ..." symptoms), then re-run T1 and T5.
+   - Repeat the timing with people who did not build the tool, and test on new transcripts.
+   - Have the medicine list checked by a pharmacist, or replace it with a verified drug database.
