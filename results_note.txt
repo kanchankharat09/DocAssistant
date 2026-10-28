@@ -1,0 +1,33 @@
+RESULTS NOTE: Patient History Assistant (MVP on mock data)
+
+FINAL RUN OF T1 TO T5
+run: run2   time: 2026-10-28T09:29:32
+git commit tested: 4520d95 (WARNING: uncommitted changes, commit first and run again)
+
+1. Tests against their targets
+   T1 summary accuracy | need 18 of 20 | 16 of 20   Fail
+   T2 medicine-dose safety | need 10 of 10 flagged, at most 2 false flags, Approve blocked on a flag | 10 of 10 flagged, 0 false flags, S7 test pass   Pass
+   T3 recall card | need 20 of 20 cards, 80 of 80 fields | 20 of 20 cards, 80 of 80 fields   Pass
+   T4 review time | need median under 30 s with 3 people | median 4.3 s with 3 people   Pass
+   T5 Hindi-English | need 4 of 5 | 3 of 5   Fail
+
+2. Speed (role-play sessions, S10)
+   People: 3 (need 3), card timings: 24 (need 20), answers not correct: 0
+   Card median 5.5 s (need under 15), transcript median 14.2 s
+   Card is 2.6 times faster (need at least 2), approval median 4.3 s (need under 30)
+
+3. Call: FIX
+   Why: T1 is 16 of 20: inconclusive, fix and run once more (plan rule)
+   (Suggested by the rules of step.md. The final call is made with Hitesh.)
+
+4. What we found
+   [WRITE 3 to 5 short lines: what worked, what failed, what surprised you]
+
+5. Limits
+   - 20 mock transcripts and 3 role-players, no real patients. The numbers are a first sign, not a proof.
+   - The prompt was tuned on the same 20 transcripts, so the score may be lower on new ones.
+   - The medicine list is a demo list from public drug labels, not checked by a doctor or pharmacist.
+   - The T1 rules for frequency, symptom and history are simple word rules.
+
+6. Next step
+   [WRITE 2 or 3 lines: what we do next if GO or FIX]
