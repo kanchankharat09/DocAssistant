@@ -1,0 +1,231 @@
+PROJECT NOTES (Hindi-English): Patient History Assistant
+=========================================================
+Ye notes aap kisi ko project samjhane ke liye use kar sakte ho.
+Numbers 29 Oct 2026 tak ke final run ke hain (S1 se S12 done).
+
+
+1. PROJECT EK MINUTE MEIN (ye aap bol sakte ho)
+------------------------------------------------
+Ek chhote clinic mein doctor patient se baat karta hai. Us baat-cheet ka likha hua
+transcript hum AI ko dete hain. AI usse ek chhota structured summary banata hai:
+complaint, kitne din se, purani history, aur medicines with dose.
+
+Doctor summary padhta hai, kuch galat ho to theek karta hai, phir Approve dabata hai.
+Approve ke baad hi summary save hoti hai.
+
+Agle visit par doctor patient ko search karta hai aur ek "recall card" dekhta hai:
+pichla visit kuch seconds mein, poora transcript padhne ki zarurat nahi.
+
+AI aur doctor ke beech ek checker hai. Agar medicine ka naam ya dose galat lage to
+checker flag laga deta hai, taaki galti galti se save na ho jaye.
+
+
+2. HUM YE PROJECT KYUN BANA RAHE HAIN
+-------------------------------------
+Repeat patients bahut aate hain aur doctor ke paas time kam hota hai.
+Hum 2 sawaal ka jawab jaanna chahte hain:
+  (1) Kya AI ka summary sahi aur safe hai?
+  (2) Kya recall card transcript padhne se sach mein tez hai?
+
+Ye sab MOCK data par test hai: 20 banaye hue transcripts, 20 banaye hue patients.
+Koi real patient nahi, koi real recording nahi.
+
+Hypothesis (humara idea, jo hum test karte hain):
+  "20 transcripts mein se kam se kam 18 summaries mein har zaruri detail rahe, aur
+   role-play karne wale doctors card se key details median 15 second se kam mein
+   dhoondh lein, aur ye transcript padhne se kam se kam 2 guna tez ho."
+Hum galat hain agar: score kam hai, ya koi galat dose bina flag ke save ho jaye, ya
+card 2 guna tez nahi hai.
+
+
+3. PICTURE (kaise kaam karta hai)
+---------------------------------
+  transcript -> AI summary -> checker (flags) -> review screen -> Approve + save
+     (S1)         (S3)          (S6)              (S7)            (S8)
+                                                                    |
+                                                                    v
+                                                  agle visit par recall card (S9)
+
+  Tests jo measure karte hain:  S4, S5, S11 (kya sahi hai?)   S10 (kya tez hai?)
+  Faisla:                       S12 (GO, FIX ya STOP)
+
+
+4. HAR STEP: KYA KIYA, KYUN KIYA, KAUN SI FILE
+----------------------------------------------
+S1  Test data
+    Kya:   20 transcripts aur 20 "expected summaries" (sahi jawab). 5 transcripts mein
+           Hindi aur English mix hai. 10 mein ek galti jaan-bujhkar daali hai
+           (5 galat medicine naam, 5 galat dose).
+    Kyun:  Test repeat ho sake. Ye exam ka paper aur answer key hai.
+    Files: test_data/, test_data/MANIFEST.csv
+
+S2  Fictional patients aur database
+    Kya:   Database clinic.db, 4 tables: patients, visits, summaries, audit_log.
+           20 patients, har ek ka ek purana approved visit.
+    Kyun:  Recall card ko dikhane ke liye ek visit chahiye.
+    Files: db/seed.py   (python db/seed.py se har baar naya database banta hai)
+
+S3  AI summary
+    Kya:   Har transcript AI model ko bheja (Groq, openai/gpt-oss-120b, temperature 0).
+           Jawab JSON file mein aata hai.
+    Kyun:  Ye tool ka main kaam hai. Temperature 0 se jawab har baar lagbhag same aata hai,
+           isliye test repeat ho sakta hai.
+    Files: summary_service/summarize.py, prompt_v1.txt (aur v2, v3)
+
+S4  Scoring script
+    Kya:   Script jo har AI summary ko expected summary se compare karke marks deti hai.
+           Check: perfect copy ko 20/20, ek dose hatao to 19/20.
+    Kyun:  Har change ke baad 20 summaries haath se nahi padh sakte.
+    Files: summary_service/score_t1.py
+
+S5  Pehla T1 result aur prompt fix
+    Kya:   T1 = 20 mein se kitni summaries mein 6 cheezein hain: medicine, dose,
+           frequency, duration, symptom, history.
+           Pehle prompt par: 8 of 20. Failed summaries padhi, wajah mili (Hindi words copy
+           hue, "no ..." symptoms aur history chhoot gayi, 2 medicines drop hui).
+           Prompt mein lines jodi (prompt_v3) -> 16 of 20.
+    Kyun:  Dekhna tha ki target 18 se kitna door hain aur kya prompt se theek hoga.
+    Files: prompt_v3.txt, results/results_sheet.csv
+
+S6  Medicine aur dose checker
+    Kya:   Har medicine ke liye: naam reference list mein hai? Dose us medicine ke usual
+           doses mein se hai? Nahi to flag ("did you mean ..." suggestion ke saath).
+           Result: 10 of 10 planted galtiyan pakdi, 0 clean transcripts par galat flag.
+    Kyun:  Galat dose sabse bada khatra hai. Checker expected summary use nahi karta,
+           kyunki real app mein wo hota hi nahi.
+    Files: summary_service/check_medicines.py, formulary.csv
+
+S7  Review screen
+    Kya:   Summary aur flags dikhata hai. Jab tak har flag theek (medicine badla) ya
+           dismiss ("ye sahi hai") na ho, Approve block rehta hai.
+    Kyun:  Doctor ko approve karne se pehle shak wali cheezein dikhni chahiye.
+    Files: app/review.py, app/pages/1_Review.py
+
+S8  Approve + save + audit log
+    Kya:   Approve par visit save hota hai. Approve nahi kiya to kuch save nahi hota.
+           Har action (approved, unapproved, blocked) time ke saath audit log mein likha jata hai.
+           Test: 20 mein se 15 approved aur saved, 0 unapproved saved, 20/20 audit entries.
+    Kyun:  Rule: doctor approve kare tabhi save. Audit log uska saboot hai.
+    Files: app/save.py
+
+S9  Recall card
+    Kya:   Patient ko naam se search karo, pichla approved visit dikhta hai: date, main
+           complaint, medicines with dose, follow-up advice.
+           Test: 20 of 20 sahi cards, 80 of 80 fields sahi.
+    Kyun:  Yahi doctor ka time bachata hai.
+    Files: app/recall.py, app/app.py
+
+S10 Timing sessions (3 role-players)
+    Kya:   3 log doctor ban kar khelte hain. Hum time karte hain: card se pichla visit
+           dhoondhna, transcript padhkar dhoondhna, aur review + approve karna.
+    Kyun:  Code test batata hai tool chalta hai. Tez hai ya nahi, sirf insaan bata sakta hai.
+    Files: app/timing.py, app/pages/2_Timing.py, app/timing_report.py, session_sheet.txt
+
+S11 Final run T1 se T5
+    Kya:   Final build par ek baar sab 5 tests chalaye. Uske baad kuch change nahi.
+    Kyun:  Numbers purane version se na aayein.
+    Files: run_tests.py (ek command, ek table, results/final_run.txt mein save)
+
+S12 Results note
+    Kya:   Ek page ka note: har test ka number target ke saamne, GO / FIX / STOP ka call,
+           kya mila, limits. make_note.py asli numbers se table bharta hai.
+    Kyun:  Hitesh aur aap numbers dekhkar faisla karein, feelings se nahi.
+    Files: make_note.py, results_note.txt, note_found.txt, note_next.txt
+
+
+5. FINAL RESULT (kya mila)
+--------------------------
+  T1  Summary accuracy      16 of 20   (target 18)        FAIL
+  T2  Medicine-dose safety  10 of 10 flagged, 0 false     PASS
+  T3  Recall card           20 of 20 cards, 80 of 80      PASS
+  T4  Review time           median 13.8 s (target < 30 s) PASS
+  T5  Hindi-English         3 of 5     (target 4)         FAIL
+
+  Speed: card median 8.3 s, transcript median 18.4 s -> card 2.2 guna tez (target 2 guna).
+  Ye 2 guna se bas thoda upar hai, bahut bada margin nahi.
+
+  CALL: FIX  (T1 = 16 hai, plan ke hisaab se "inconclusive: theek karo aur ek baar run karo").
+  STOP nahi, kyunki STOP wale rule mein se koi sach nahi: har galat dose flag hua, card 2 guna
+  se tez hai, aur T1 16 se neeche nahi gaya.
+
+
+6. T1 AUR T5 KYUN FAIL HUE
+--------------------------
+T1 ke 4 failed cases:
+  T11  history missing
+  T12  levothyroxine ki frequency missing
+  T18  symptom aur history missing
+  T19  history missing
+5 mein se 3 cases mein "past history" chhoot rahi hai. Yahi sabse badi wajah hai.
+
+T5 (Hindi-English) ke 5 cases: T03, T07, T11, T15, T19.
+  T03, T07, T15 pass. T11 aur T19 fail, dono mein history missing.
+Yani T1 aur T5 ki problem ek hi hai: AI past history chhod deta hai.
+
+Agla kadam: prompt mein ek line jodna ki past_history hamesha bharo (purani bimari kitne
+saal se, abhi ka treatment, pehle ke similar episodes, aur jo bimari patient ne mana ki hai),
+aur har medicine ki frequency likho. Phir sirf ek baar re-run karna. Hitesh se pehle poochna.
+
+
+7. JO IDEAS AAP KO SAMJHANI HAIN
+--------------------------------
+- Prompt: wo likhi hui instruction jo hum AI ko dete hain. run1 aur run2 ke beech sirf prompt badla.
+- Temperature 0: AI har baar lagbhag same jawab deta hai. Repeatable test ke liye zaruri.
+- Expected summary: sahi jawab, SIRF marks dene ke liye. Real app ise kabhi nahi dekhta.
+- Planted error: jaan-bujhkar daali hui galti (galat medicine naam ya dose), ye dekhne ke
+  liye ki checker pakadta hai ya nahi.
+- Flag: "doctor, ise dekh lo". Flag khud kuch decide nahi karta. Doctor decide karta hai.
+- Audit log: jo kuch hua uski list, time ke saath.
+- Median: beech ka number. Ek bahut slow insaan result kharab nahi karta.
+- Gate: ek number jo decide karta hai ki aage badhna hai ya nahi.
+
+
+8. LOG YE SAWAAL POOCH SAKTE HAIN (imaandaar jawab)
+------------------------------------------------
+Q: T1 sirf 16 of 20 kyun hai?
+A: 4 transcripts mein summary kuch history, symptom ya frequency chhod deti hai (T11, T12,
+   T18, T19). Plan ke hisaab se 16 ya 17 "inconclusive" hai: theek karo aur ek baar run karo.
+
+Q: Kya prompt sirf in 20 transcripts ke liye tune kiya gaya hai?
+A: Haan, in 20 ki failures padhkar prompt sudhara. Naye transcripts par score kam ho sakta hai.
+
+Q: Medicine list kahan se aayi?
+A: General knowledge se likhi aur public drug labels aur sites se check ki. Kisi doctor ya
+   pharmacist ne review nahi ki. Real product ke liye verified drug database chahiye.
+
+Q: Checker kya NAHI pakadta?
+A: Sahi naam + sahi dose, lekin is patient ke liye galat medicine. Wo ek tablet ki strength
+   check karta hai, din ka total dose nahi.
+
+Q: Card test (S9) itni aasani se pass kyun hota hai?
+A: Database usi expected summaries se bana hai, to ye sirf lookup ka kaam dikhata hai.
+   AI summary kitni achhi hai, ye T1 batata hai.
+
+Q: 3 hi log kyun?
+A: Plan ka number 3 hai. Ye pehla sign hai, saboot nahi. Aur ek role-player (R1) tool banane
+   wala hai, isliye uske times shayad real doctors se kam hain.
+
+
+9. LIMITS (khud pehle bol do)
+-----------------------------
+- 20 mock transcripts, 3 role-players, koi real patient ya recording nahi.
+- Prompt usi 20 transcripts par tune hua.
+- Medicine list demo list hai, doctor ne check nahi ki.
+- T1 ke frequency, symptom, history ke word rules simple hain.
+- Streamlit screens demo ke liye hain, bahut users ke liye nahi.
+
+
+10. SAB KUCH KAISE CHALAYEIN (DocAssistant folder se)
+-----------------------------------------------------
+  python db/seed.py                             naya database
+  python summary_service/summarize.py           AI summaries (.env mein key chahiye)
+  python summary_service/score_t1.py run2       T1 score
+  python summary_service/check_medicines.py run2   medicine checker
+  python app/test_s9.py   python app/test_s7.py   python app/test_s8.py
+  streamlit run app/app.py                      screens: app, Review, Timing
+  python app/timing_report.py                   S10 result
+  python run_tests.py                           S11 final run
+  python make_note.py                           S12 note
+
+Dhyan: score_t1.py bina run name ke run1 (purana prompt) score karta hai (8 of 20).
+Final run hamesha run2 hai. Har scorer run results_sheet.csv mein ek row jodta hai.
