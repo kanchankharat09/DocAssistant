@@ -1,3 +1,1 @@
-- Ask Hitesh if one more prompt change is allowed (history and "no ..." symptoms), then re-run T1 and T5.
-- Repeat the timing with people who did not build the tool, and test on new transcripts.
-- Have the medicine list checked by a pharmacist, or replace it with a verified drug database.
+- Make one more prompt change (past history and "no ..." symptoms), then re-run T1 and T5 on the 20 tests plus new conversations.
