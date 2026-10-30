@@ -1,7 +1,6 @@
 RESULTS NOTE: Patient History Assistant (MVP on mock data)
 
 FINAL RUN OF T1 TO T5
-git commit tested: 11dcfb6 (no uncommitted changes)
 
 1. Tests against their targets
    T1 summary accuracy | need 18 of 20 | 16 of 20   Fail

@@ -120,7 +120,7 @@ def build_note(header, tests, speed, call, reason):
     lines.append("RESULTS NOTE: Patient History Assistant (MVP on mock data)")
     lines.append("")
     for line in header:
-        if not line.startswith("run:"):
+        if not line.startswith("run:") and not line.startswith("git commit tested"):
             lines.append(line)
     lines.append("")
     lines.append("1. Tests against their targets")
