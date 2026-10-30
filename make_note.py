@@ -157,6 +157,9 @@ def build_note(header, tests, speed, call, reason):
     lines.append("   - The prompt was tuned on the same 20 transcripts, so the score may be lower on new ones.")
     lines.append("   - The medicine list is a demo list from public drug labels, not checked by a doctor or pharmacist.")
     lines.append("   - The T1 rules for frequency, symptom and history are simple word rules.")
+    lines.append("")
+    lines.append("6. Next step")
+    lines = lines + read_text_lines("note_next.txt", "[WRITE 2 or 3 lines: what we do next if GO or FIX]")
     return lines
 
 
