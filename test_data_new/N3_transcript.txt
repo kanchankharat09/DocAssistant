@@ -1,0 +1,9 @@
+Patient: Ravi Menon, 58M
+Date: 2 Nov 2026
+Type: Follow-up
+
+Doctor: Namaste Ravi ji. Sugar ka kya haal hai?
+Patient: Theek hai doctor, bas pair mein thodi jalan hai, 2 hafte se. Chakkar nahi aate.
+Doctor: Aap Metformin leta hain?
+Patient: Haan, 500mg subah shaam. Allergy koi nahi.
+Doctor: Main Metformin 5000mg likh raha hoon, din mein do baar khane ke saath, 30 din ke liye, aur Vitamin B12 1500mcg din mein ek baar, 30 din ke liye. Meetha kam khao. 1 mahine baad sugar test karwana.

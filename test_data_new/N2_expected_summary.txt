@@ -1,0 +1,9 @@
+Chief complaint: Sore throat and mild fever for 2 days
+Duration: 2 days
+Associated symptoms: No cough. Throat red.
+Past history: No asthma, no sugar, no other illness
+Allergies: Penicillin
+Medicines prescribed:
+- Azithromycin 500mg — once a day — 3 days
+- Paracetamol 650mg — when needed for fever — 3 days
+Doctor instructions: Gargle with warm water. Return if fever continues after 3 days.

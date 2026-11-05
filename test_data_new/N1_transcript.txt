@@ -1,0 +1,9 @@
+Patient: Mahesh Rao, 52M
+Date: 2 Nov 2026
+Type: First visit
+
+Doctor: Namaste Mahesh ji. Kya problem hai?
+Patient: Doctor sahab, 3 din se sar mein dard hai aur chakkar aa rahe hain. Ulti nahi hui.
+Doctor: Koi purani bimari?
+Patient: BP hai, 5 saal se. Amlodipine 5mg roz subah leta hoon. 2 saal pehle hernia ka operation hua tha. Allergy koi nahi.
+Doctor: BP thoda high hai. Amlodipine 5mg chalti rahegi. Main Paracetamol 500mg likh raha hoon, din mein teen baar khane ke baad, 3 din ke liye. Namak kam khao. 3 din baad bhi chakkar aaye to wapas aana.

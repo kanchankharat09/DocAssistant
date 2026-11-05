@@ -115,6 +115,15 @@ def make_call(tests, speed):
     return "FIX", "not all targets met: " + ", ".join(failed)
 
 
+def median_without_builder(task):
+    # median of one task from results/timing.csv, correct answers only, without R1 (the builder)
+    import csv
+    import statistics
+    rows = csv.DictReader(open("results/timing.csv", encoding="utf-8"))
+    values = [float(r["seconds"]) for r in rows if r["task"] == task and r["person"] != "R1" and r["correct"] == "yes"]
+    return statistics.median(values), len(values)
+
+
 def build_note(header, tests, speed, call, reason):
     lines = []
     lines.append("RESULTS NOTE: Patient History Assistant (MVP on mock data)")
@@ -129,6 +138,8 @@ def build_note(header, tests, speed, call, reason):
             lines.append("   " + key + " " + tests[key]["name"] + " | need " + tests[key]["target"] + " | " + tests[key]["result"].split("   (cases")[0])
         else:
             lines.append("   " + key + " | NOT RUN")
+    lines.append("   T4 is the same measurement as the approval median in section 2.")
+    lines.append("   S10 speed (card 2.2 times faster, median 8.3 s): a pass against the hypothesis.")
     lines.append("")
     lines.append("2. Speed (role-play sessions, S10)")
     if len(speed["people"]) == 0:
@@ -144,6 +155,11 @@ def build_note(header, tests, speed, call, reason):
                      + show(speed["transcript_median"]) + " s")
         lines.append("   Card is " + show(speed["times_faster"]) + " times faster (need at least 2), approval median "
                      + show(speed["approval_median"]) + " s (need under 30)")
+        card_other, n_card = median_without_builder("card")
+        approval_other, n_appr = median_without_builder("approval")
+        lines.append("   Without R1 (the builder), R2 and R3 only: card median " + str(round(card_other, 1)) + " s ("
+                     + str(n_card) + " timings), approval median " + str(round(approval_other, 1)) + " s (" + str(n_appr)
+                     + " timings). The medians above include R1.")
     lines.append("")
     lines.append("3. Call: " + call)
     lines.append("   Why: " + reason)

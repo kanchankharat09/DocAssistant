@@ -1,5 +1,5 @@
 - The recall card was faster than reading the transcript (see section 2), and the review screen worked: Approve is blocked until each flag is fixed or dismissed.
 - The medicine checker flagged all 10 planted errors with no false flags.
-- T1 is 16 of 20 (target 18): 4 summaries still miss some past history, symptom or frequency (T11, T12, T18, T19).
-- The Hindi-English summaries pass in 3 of 5 cases (target 4).
-- The timing sessions were run by 3 people, but R1 is the builder, so the times are probably lower than for real doctors.
+- BEFORE the last prompt change: T1 was 16 of 20 (T11, T12, T18, T19 miss past history, symptom or frequency) and T5 was 3 of 5.
+- AFTER (prompt_v4, one change, final number): T1 = NOT RUN YET, T5 = NOT RUN YET. New unseen set (5 transcripts, 2 Hindi-English, 1 planted error): NOT RUN YET, reported separately.
+- Prompt line added in prompt_v4.txt: "In past_history, also write earlier illnesses, long-term medicines, surgeries and family history the patient mentions; when the patient says there is nothing, write "No past illness" and never leave it empty, and in associated_symptoms write every "no ..." answer to the doctor's questions, for example "no vomiting"."

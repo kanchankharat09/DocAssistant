@@ -1,0 +1,9 @@
+Patient: Ananya Iyer, 28F
+Date: 2 Nov 2026
+Type: First visit
+
+Doctor: Hello Ananya, what brings you in?
+Patient: I have had a cough and runny nose for 5 days. No fever, no breathing trouble.
+Doctor: Any past illness?
+Patient: Asthma since childhood. I use Salbutamol inhaler when needed. No allergies.
+Doctor: Chest is clear. I am prescribing Cetirizine 10mg once at night for 5 days. Continue the Salbutamol inhaler as before. Drink warm fluids. Come back if the cough lasts more than a week.

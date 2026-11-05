@@ -1,0 +1,9 @@
+Patient: Dinesh Patel, 40M
+Date: 2 Nov 2026
+Type: First visit
+
+Doctor: Good morning Dinesh. What is the problem?
+Patient: Lower back pain for 4 days after lifting a box. No leg numbness, no fever.
+Doctor: Any illness before, or medicines?
+Patient: Nothing. No allergies.
+Doctor: Mild muscle spasm. I am writing Ibuprofen 400mg twice a day after food for 4 days, and Thiocolchicoside 4mg twice a day for 4 days. Hot compress. Avoid lifting. Return if pain continues after 4 days.

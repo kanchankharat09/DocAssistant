@@ -1,0 +1,9 @@
+Patient: Farida Khan, 34F
+Date: 2 Nov 2026
+Type: First visit
+
+Doctor: Namaste Farida ji. Bataiye.
+Patient: Doctor, 2 din se gale mein dard hai aur halka bukhar. Khansi nahi hai.
+Doctor: Koi purani bimari? Asthma ya sugar?
+Patient: Nahi, kuch nahi hai. Penicillin se allergy hai.
+Doctor: Gala laal hai. Main Azithromycin 500mg likh raha hoon, din mein ek baar, 3 din ke liye, aur Paracetamol 650mg bukhar mein, zarurat padne par, 3 din tak. Garam paani se gargle karo. Agar bukhar 3 din baad bhi rahe to wapas aana.

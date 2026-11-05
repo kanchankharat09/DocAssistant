@@ -1,0 +1,10 @@
+Chief complaint: Burning in feet for 2 weeks (diabetes follow-up)
+Duration: 2 weeks
+Associated symptoms: No dizziness
+Past history: Diabetes, on Metformin 500mg morning and evening
+Allergies: None
+Medicines prescribed:
+- Metformin 5000mg — twice a day with food — 30 days
+- Vitamin B12 1500mcg — once a day — 30 days
+Doctor instructions: Reduce sweets. Repeat sugar test after 1 month.
+Planted error: Metformin 5000mg said, correct is 500mg
