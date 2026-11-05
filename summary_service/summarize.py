@@ -63,7 +63,7 @@ for file_name in files:
         continue
 
     total_count = total_count + 1
-    transcript = open(test_data_folder + "/" + file_name).read()
+    transcript = open(test_data_folder + "/" + file_name, encoding="utf-8").read()
 
     # ask the AI (temperature 0 so the answer stays the same every time)
     # if Groq says "rate limit" (429), wait 20 seconds and try again, up to 5 times
@@ -106,7 +106,7 @@ for file_name in files:
         good_count = good_count + 1
 
     result = {"model": model_name, "temperature": 0, "prompt_file": prompt_file, "shape_ok": shape_ok, "summary": summary}
-    out_file = open(output_folder + "/" + case_id + ".json", "w")
+    out_file = open(output_folder + "/" + case_id + ".json", "w", encoding="utf-8")
     out_file.write(json.dumps(result, indent=2, ensure_ascii=False))
     out_file.close()
 
