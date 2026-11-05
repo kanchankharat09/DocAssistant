@@ -1,0 +1,7 @@
+time,run,model,prompt_file,passed,total
+2026-10-21T20:57:04,run1,openai/gpt-oss-120b,summary_service/prompt_v1.txt,7,20
+2026-10-21T22:32:23,run3,openai/gpt-oss-120b,summary_service/prompt_v2.txt,10,20
+2026-10-21T22:47:13,run3,openai/gpt-oss-120b,summary_service/prompt_v2.txt,9,20
+2026-10-21T22:52:48,run1,openai/gpt-oss-120b,summary_service/prompt_v1.txt,8,20
+2026-10-25T11:51:02,run1,openai/gpt-oss-120b,summary_service/prompt_v1.txt,8,20
+2026-10-25T11:52:43,run2,openai/gpt-oss-120b,summary_service/prompt_v2.txt,10,20
