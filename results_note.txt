@@ -3,11 +3,11 @@ RESULTS NOTE: Patient History Assistant (MVP on mock data)
 FINAL RUN OF T1 TO T5
 
 1. Tests against their targets
-   T1 summary accuracy | need 18 of 20 | 16 of 20   Fail
-   T2 medicine-dose safety | need 10 of 10 flagged, at most 2 false flags, Approve blocked on a flag | 10 of 10 flagged, 0 false flags, S7 test pass   Pass
+   T1 summary accuracy | need 18 of 20 | 13 of 20   Fail
+   T2 medicine-dose safety | need 10 of 10 flagged, at most 2 false flags, Approve blocked on a flag | 10 of 10 flagged, 1 false flags, S7 test pass   Pass
    T3 recall card | need 20 of 20 cards, 80 of 80 fields | 20 of 20 cards, 80 of 80 fields   Pass
    T4 review time | need median under 30 s with 3 people | median 13.8 s with 3 people   Pass
-   T5 Hindi-English | need 4 of 5 | 3 of 5   Fail
+   T5 Hindi-English | need 4 of 5 | 2 of 5   Fail
    T4 is the same measurement as the approval median in section 2.
    S10 speed (card 2.2 times faster, median 8.3 s): a pass against the hypothesis.
 
@@ -17,16 +17,17 @@ FINAL RUN OF T1 TO T5
    Card is 2.2 times faster (need at least 2), approval median 13.8 s (need under 30)
    Without R1 (the builder), R2 and R3 only: card median 8.0 s (14 timings), approval median 13.2 s (4 timings). The medians above include R1.
 
-3. Call: FIX
-   Why: T1 is 16 of 20: inconclusive, fix and run once more (plan rule)
+3. Call: STOP
+   Why: T1 is 13 of 20, below 16 (a 'we are wrong' rule of the plan)
    (Suggested by the rules of step.md. The final call is made with Hitesh.)
 
 4. What we found
    - The recall card was faster than reading the transcript (see section 2), and the review screen worked: Approve is blocked until each flag is fixed or dismissed.
-   - The medicine checker flagged all 10 planted errors with no false flags.
-   - BEFORE the last prompt change: T1 was 16 of 20 (T11, T12, T18, T19 miss past history, symptom or frequency) and T5 was 3 of 5.
-   - AFTER (prompt_v4, one change, final number): T1 = NOT RUN YET, T5 = NOT RUN YET. New unseen set (5 transcripts, 2 Hindi-English, 1 planted error): NOT RUN YET, reported separately.
-   - Prompt line added in prompt_v4.txt: "In past_history, also write earlier illnesses, long-term medicines, surgeries and family history the patient mentions; when the patient says there is nothing, write "No past illness" and never leave it empty, and in associated_symptoms write every "no ..." answer to the doctor's questions, for example "no vomiting"."
+   - The medicine checker flagged all 10 planted errors with 1 false flag.
+   - BEFORE the prompt change (prompt_v3): T1 16 of 20 (fails T11, T12, T18, T19), T5 3 of 5.
+   - AFTER the one prompt change (prompt_v4, run3, final): T1 13 of 20, T5 2 of 5. It got worse. T1 fails: T01, T03, T17 (new), T11, T12, T18, T19. T01, T03, T18, T19 miss history, T17 misses a symptom, T11 and T12 miss a frequency.
+   - Prompt line changed (added to v3): "In past_history, also write earlier illnesses, long-term medicines, surgeries and family history the patient mentions; when the patient says there is nothing, write "No past illness" and never leave it empty, and in associated_symptoms write every "no ..." answer to the doctor's questions, for example "no vomiting"." A likely cause is that "No past illness" replaced the specific "no BP, no sugar" wording the scorer looks for (not checked yet).
+   - The new unseen set (N1 to N5, 2 Hindi-English, 1 planted error) is not scored yet, it will be reported separately.
 
 5. Limits
    - 20 mock transcripts and 3 role-players, no real patients. The numbers are a first sign, not a proof.
@@ -35,4 +36,4 @@ FINAL RUN OF T1 TO T5
    - The T1 rules for frequency, symptom and history are simple word rules.
 
 6. Next step
-   - Make one more prompt change (past history and "no ..." symptoms), then re-run T1 and T5 on the 20 tests plus new conversations.
+   - No more prompt tuning on these 20 tests (rule agreed with Hitesh). Decide with Hitesh: go back to prompt_v3 (16 of 20) or change the approach, and score N1 to N5.

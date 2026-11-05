@@ -1,1 +1,1 @@
-- Make one more prompt change (past history and "no ..." symptoms), then re-run T1 and T5 on the 20 tests plus new conversations.
+- No more prompt tuning on these 20 tests (rule agreed with Hitesh). Decide with Hitesh: go back to prompt_v3 (16 of 20) or change the approach, and score N1 to N5.

@@ -1,5 +1,6 @@
 - The recall card was faster than reading the transcript (see section 2), and the review screen worked: Approve is blocked until each flag is fixed or dismissed.
-- The medicine checker flagged all 10 planted errors with no false flags.
-- BEFORE the last prompt change: T1 was 16 of 20 (T11, T12, T18, T19 miss past history, symptom or frequency) and T5 was 3 of 5.
-- AFTER (prompt_v4, one change, final number): T1 = NOT RUN YET, T5 = NOT RUN YET. New unseen set (5 transcripts, 2 Hindi-English, 1 planted error): NOT RUN YET, reported separately.
-- Prompt line added in prompt_v4.txt: "In past_history, also write earlier illnesses, long-term medicines, surgeries and family history the patient mentions; when the patient says there is nothing, write "No past illness" and never leave it empty, and in associated_symptoms write every "no ..." answer to the doctor's questions, for example "no vomiting"."
+- The medicine checker flagged all 10 planted errors with 1 false flag.
+- BEFORE the prompt change (prompt_v3): T1 16 of 20 (fails T11, T12, T18, T19), T5 3 of 5.
+- AFTER the one prompt change (prompt_v4, run3, final): T1 13 of 20, T5 2 of 5. It got worse. T1 fails: T01, T03, T17 (new), T11, T12, T18, T19. T01, T03, T18, T19 miss history, T17 misses a symptom, T11 and T12 miss a frequency.
+- Prompt line changed (added to v3): "In past_history, also write earlier illnesses, long-term medicines, surgeries and family history the patient mentions; when the patient says there is nothing, write "No past illness" and never leave it empty, and in associated_symptoms write every "no ..." answer to the doctor's questions, for example "no vomiting"." A likely cause is that "No past illness" replaced the specific "no BP, no sugar" wording the scorer looks for (not checked yet).
+- The new unseen set (N1 to N5, 2 Hindi-English, 1 planted error) is not scored yet, it will be reported separately.
