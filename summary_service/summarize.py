@@ -29,7 +29,7 @@ model_name = os.environ.get("GROQ_MODEL", "openai/gpt-oss-120b")
 # option b (smaller model, use it if you get a "rate limit" error):
 # model_name = "openai/gpt-oss-20b"
 
-test_data_folder = "test_data"
+test_data_folder = os.environ.get("TEST_DATA", "test_data")
 # each run is saved in its own folder, so two runs can be compared later.
 # change the name from outside with RUN_NAME, example: run1, run2
 run_name = os.environ.get("RUN_NAME", "run1")
@@ -58,7 +58,7 @@ files.sort()
 good_count = 0
 total_count = 0
 for file_name in files:
-    case_id = file_name[:3]          # T01, T02 ...
+    case_id = file_name.split("_")[0]          # T01, T02 ...
     if len(wanted) > 0 and case_id not in wanted:
         continue
 

@@ -27,7 +27,7 @@ import os
 import sys
 from datetime import datetime
 
-test_data_folder = "test_data"
+test_data_folder = os.environ.get("TEST_DATA", "test_data")   # TEST_DATA=test_data_new scores the 5 new transcripts
 
 
 def clean_dose(text):
@@ -222,7 +222,7 @@ def score_folder(folder):
     for name in sorted(os.listdir(test_data_folder)):
         if not name.endswith("_expected_summary.txt"):
             continue
-        case_id = name[:3]
+        case_id = name.split("_")[0]
         json_file = folder + "/" + case_id + ".json"
         if not os.path.exists(json_file):
             print(case_id, "no AI summary in", folder)
@@ -270,6 +270,9 @@ def main():
             run_name = sys.argv[1]
         passed, total = score_folder("results/summaries/" + run_name)
         print("T1 score:", passed, "of", total)
+        if test_data_folder != "test_data":
+            print("(other test folder: not written in the results sheet)")
+            return
 
         # write this score in the results sheet (S5). it keeps the model and the prompt of the run.
         model_used = ""
